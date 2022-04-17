@@ -87,7 +87,11 @@ module.exports={
         EditConference:'Edit Conference',
         IsSubmit:'Do you want to submit? ',
         Modify:'Submit',
-        Tips:'· If you want to change first picture, you don\'t need to submit it ·'
+        Tips:'· If you want to change first picture, you don\'t need to submit it ·',
+        Details:'more',
+        AddRoot:'Add New Root',
+        Input:'Input Name',
+        Append:'Append',
     },
     MyMessageBox: {
         Box_1: 'Are you sure to delete ',

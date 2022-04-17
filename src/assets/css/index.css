@@ -1,7 +1,4 @@
 
-body {
-  cursor: url(https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/img/default.cur),default;
-}
 
 ul{
   padding:0 !important;
@@ -306,26 +303,8 @@ p {
   color: #999;
 }
 
-.v-comment-btn{
-  border: 1px solid #ededed;
-  border-color: #fff;
-  border-radius: 4px;
-  text-align: center;
-  padding: 6px 16px;
-  font-size: 14px;
-  transition: all 0.3s;
-  outline: none;
-}
 
-.comment-input{
-  position: relative;
-}
 
-.commmen-img{
-  position: absolute;
-  right: 0;
-  bottom: 0;
-}
 
 @keyframes header-effect{
   0% {

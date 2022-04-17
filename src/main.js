@@ -1,7 +1,6 @@
 import {createApp} from 'vue'
 
-import './assets/css/global.css'
-import './assets/css/index.css'
+import '../src/assets/css/global.css'
 import 'animate.css'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
@@ -11,11 +10,25 @@ import axios from 'axios'
 import * as Icons from '@element-plus/icons-vue'
 import JsEncrypt from 'jsencrypt'
 import VueI18n from './language'
+//md编辑器
+import VMdEditor from '@kangc/v-md-editor';
+import '@kangc/v-md-editor/lib/style/base-editor.css';
+import vuepressTheme from '@kangc/v-md-editor/lib/theme/vuepress.js';
+import '@kangc/v-md-editor/lib/theme/style/vuepress.css';
+// Prism
+import Prism from 'prismjs';
+// highlight code
+import 'prismjs/components/prism-json';
+
+VMdEditor.use(vuepressTheme, {
+    Prism,
+});
 
 const app = createApp(App)
 app.use(router)
 app.use(ElementPlus)
 app.use(VueI18n)
+app.use(VMdEditor)
 app.mount('#app')
 //注册使用icon
 Object.keys(Icons).forEach(key => {

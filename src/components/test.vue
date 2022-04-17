@@ -1,14 +1,13 @@
 <template>
-<div class="m-home">
-
-</div>
+  <v-md-editor v-model="text" height="400px"></v-md-editor>
 </template>
+
 <script>
+export default {
+  data() {
+    return {
+      text: '',
+    };
+  },
+};
 </script>
-<style scoped>
-.m-home {
-  padding-bottom: 0 !important;
-  width: 100%;
-  margin: auto;
-}
-</style>

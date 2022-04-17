@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 99%;">
+  <div style="width: 99%">
     <transition
         mode="out-in"
         enter-active-class="animate__animated animate__fadeIn"

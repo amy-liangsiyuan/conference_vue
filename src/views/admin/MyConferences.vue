@@ -7,7 +7,7 @@
         <el-table-column prop="createTime" :label="$t('ConferenceInfo.CreateTime')" width="190"/>
         <el-table-column prop="dropTime" :label="$t('ConferenceInfo.DropTime')" width="190"/>
         <el-table-column prop="city" :label="$t('ConferenceInfo.City')" width="120"/>
-        <el-table-column prop="address" :label="$t('ConferenceInfo.Address')" width="300"/>
+        <el-table-column prop="address" :label="$t('ConferenceInfo.Address')" width="270"/>
         <el-table-column prop="department" :label="$t('ConferenceInfo.Department')" width="150"/>
         <el-table-column prop="state" :label="$t('ConferenceInfo.State')" width="150"/>
         <el-table-column fixed="right" :label="$t('MyConferencePage.Operation')">
@@ -16,13 +16,69 @@
             >{{ $t('MyConferencePage.Edit') }}
             </el-button
             >
+            <el-button type="text" @click="ConferenceDetails(scope.row)">
+              {{ $t('MyConferencePage.Details') }}
+            </el-button>
             <el-button type="text" style="color: red" @click="ConferenceDelete(scope.row)">
               {{ $t('MyConferencePage.Delete') }}
             </el-button>
           </template>
         </el-table-column>
       </el-table>
-      <!--弹出框-->
+
+      <!--更多设置弹出框-->
+      <el-drawer
+          size="95%"
+          style="border-radius: 20px"
+          v-model="DetailsFlag"
+          direction="ltr"
+          :title="$t('MyConferencePage.EditConference')"
+      >
+        <div class="MyDrawer" style="padding: 2%">
+          <div style="width: 40%;">
+            <div>
+              <el-button icon="plus" style="margin-bottom: 10px" type="info" @click="addRoot" round>
+                {{ $t('MyConferencePage.AddRoot') }}
+              </el-button>
+              <el-button icon="Check" style="margin-bottom: 10px" type="primary" @click="MenuSubmit" round>
+                {{ $t('MyConferencePage.Modify') }}
+              </el-button>
+            </div>
+
+            <el-tree
+                class="MyTree"
+                :data="Tree"
+                node-key="id"
+                default-expand-all
+                :expand-on-click-node="false">
+              <template #default="{ node, data }">
+        <span class="custom-tree-node">
+          <el-input size="small" v-model="data.label"></el-input>
+          <span>
+            <el-button type="text" @click="append(node,data)">
+              {{ $t('MyConferencePage.Append') }}
+            </el-button>
+            <el-button type="text" @click="TreeEdit(node, data)">
+              {{ $t('MyConferencePage.Edit') }}
+            </el-button><el-button type="text" style="color: red" @click="remove(node, data)">
+              {{ $t('MyConferencePage.Delete') }}
+            </el-button>
+          </span>
+        </span>
+              </template>
+            </el-tree>
+          </div>
+          <div class="divider div-transparent"></div>
+          <el-divider direction="vertical"></el-divider>
+          <div style="width: 60%;margin-left:1%;text-align: left;overflow:hidden">
+              <v-md-editor
+                  v-model="this.content" height="95%"></v-md-editor>
+          </div>
+        </div>
+      </el-drawer>
+
+
+      <!--基础设置弹出框-->
       <el-drawer
           size="37%"
           style="border-radius: 20px"
@@ -32,80 +88,80 @@
           :title="$t('MyConferencePage.EditConference')"
       >
         <div class="MyDrawer">
-              <el-form
-                  ref="conferenceInfo"
-                  style="font-size:20px;font-weight:800;margin-top: 20px"
-                  :rules="rules"
-                  :model="conferenceInfo"
-                  label-width="140px"
-                  label-position="right"
+          <el-form
+              ref="conferenceInfo"
+              style="font-size:20px;font-weight:800;margin-top: 20px"
+              :rules="rules"
+              :model="conferenceInfo"
+              label-width="140px"
+              label-position="right"
+          >
+            <el-form-item :label="$t('ConferenceInfo.Name')" prop="name">
+              <el-input v-model="conferenceInfo.name" disabled></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('ConferenceInfo.City')" prop="city">
+              <el-input v-model="conferenceInfo.city"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('ConferenceInfo.Address')" prop="address">
+              <el-input v-model="conferenceInfo.address"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('ConferenceInfo.Department')" prop="department">
+              <el-input v-model="conferenceInfo.department"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('ConferenceInfo.Time')" prop="time_arr">
+              <el-date-picker
+                  format="YYYY/MM/DD hh:mm"
+                  value-format="YYYY-MM-DD hh:mm"
+                  v-model="conferenceInfo.time_arr"
+                  type="datetimerange"
+                  style="width: 100%"
+                  :disabled-date="TimeFunc"
+              ></el-date-picker>
+            </el-form-item>
+            <el-form-item :label="$t('ConferenceInfo.Language')">
+              <el-radio-group v-model="conferenceInfo.language">
+                <el-radio label="1">中文</el-radio>
+                <el-radio label="2">English</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item :label="$t('ConferenceInfo.ExpectedNumber')" prop="peopleNum">
+              <el-input v-model="conferenceInfo.peopleNum"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('ConferenceInfo.Description')">
+              <el-input type="textarea" v-model="conferenceInfo.description"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('ConferenceInfo.FirstPicture')">
+              <el-upload
+                  style="margin-left: 0"
+                  action="http://localhost:9001/server/file/add_firstPicture"
+                  :headers="myHeader"
+                  :limit="1"
+                  list-type="picture-card"
+                  :before-upload="beforeUpload"
+                  :on-preview="handlePictureCardPreview"
+                  :on-success="onSuccess"
+                  :on-error="onError"
+                  :on-remove="handleRemove"
+                  :on-exceed="handleExceed"
+                  :file-list="this.fileList[0].url==='' ? []:fileList"
               >
-                <el-form-item :label="$t('ConferenceInfo.Name')" prop="name">
-                  <el-input v-model="conferenceInfo.name" disabled></el-input>
-                </el-form-item>
-                <el-form-item :label="$t('ConferenceInfo.City')" prop="city">
-                  <el-input v-model="conferenceInfo.city"></el-input>
-                </el-form-item>
-                <el-form-item :label="$t('ConferenceInfo.Address')" prop="address">
-                  <el-input v-model="conferenceInfo.address"></el-input>
-                </el-form-item>
-                <el-form-item :label="$t('ConferenceInfo.Department')" prop="department">
-                  <el-input v-model="conferenceInfo.department"></el-input>
-                </el-form-item>
-                <el-form-item :label="$t('ConferenceInfo.Time')" prop="time_arr">
-                  <el-date-picker
-                      format="YYYY/MM/DD hh:mm"
-                      value-format="YYYY-MM-DD hh:mm"
-                      v-model="conferenceInfo.time_arr"
-                      type="datetimerange"
-                      style="width: 100%"
-                      :disabled-date="TimeFunc"
-                  ></el-date-picker>
-                </el-form-item>
-                <el-form-item :label="$t('ConferenceInfo.Language')">
-                  <el-radio-group v-model="conferenceInfo.language">
-                    <el-radio label="1">中文</el-radio>
-                    <el-radio label="2">English</el-radio>
-                  </el-radio-group>
-                </el-form-item>
-                <el-form-item :label="$t('ConferenceInfo.ExpectedNumber')" prop="peopleNum">
-                  <el-input v-model="conferenceInfo.peopleNum"></el-input>
-                </el-form-item>
-                <el-form-item :label="$t('ConferenceInfo.Description')">
-                  <el-input type="textarea" v-model="conferenceInfo.description"></el-input>
-                </el-form-item>
-                <el-form-item :label="$t('ConferenceInfo.FirstPicture')">
-                  <el-upload
-                      style="margin-left: 0"
-                      action="http://localhost:9001/server/file/add_firstPicture"
-                      :headers="myHeader"
-                      :limit="1"
-                      list-type="picture-card"
-                      :before-upload="beforeUpload"
-                      :on-preview="handlePictureCardPreview"
-                      :on-success="onSuccess"
-                      :on-error="onError"
-                      :on-remove="handleRemove"
-                      :on-exceed="handleExceed"
-                      :file-list="this.fileList[0].url==='' ? []:fileList"
-                  >
-                    <el-icon>
-                      <Plus/>
-                    </el-icon>
-                  </el-upload>
-                  <el-dialog width="100%" v-model="dialogVisible">
-                    <el-image width="100%" :src="this.conferenceInfo.firstPicture" alt="Preview Image"/>
-                  </el-dialog>
-                </el-form-item>
-                <el-form-item label="">
-                  <el-tag style="overflow: hidden" type="danger" size="small">{{ $t('MyConferencePage.Tips') }}</el-tag>
-                </el-form-item>
-                <el-form-item>
-                  <el-button type="primary" size="large" @click="submit('conferenceInfo')">
-                    {{ $t('MyConferencePage.Modify') }}
-                  </el-button>
-                </el-form-item>
-              </el-form>
+                <el-icon>
+                  <Plus/>
+                </el-icon>
+              </el-upload>
+              <el-dialog width="100%" v-model="dialogVisible">
+                <el-image width="100%" :src="this.conferenceInfo.firstPicture" alt="Preview Image"/>
+              </el-dialog>
+            </el-form-item>
+            <el-form-item label="">
+              <el-tag style="overflow: hidden" type="danger" size="small">{{ $t('MyConferencePage.Tips') }}</el-tag>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" size="large" @click="submit('conferenceInfo')">
+                {{ $t('MyConferencePage.Modify') }}
+              </el-button>
+            </el-form-item>
+          </el-form>
         </div>
       </el-drawer>
     </div>
@@ -121,11 +177,25 @@ export default {
   name: "UserInfo",
   data() {
     return {
+      id: 1,
+      content:'### Edit With MarkDown',
       myHeader: {
         Authorization: "Bearer " + window.sessionStorage.getItem('token'),
         token: window.sessionStorage.getItem('token'),
         conferenceId: ''
       },
+      Tree: [{
+        //唯一标识
+        id: 1,
+        //几级菜单
+        level: 1,
+        //位于当前级的位置
+        sort: 1,
+        label: this.$i18n.t('MyConferencePage.Input'),
+        content: '### content1',
+        childrenNum: 0,
+        children: []
+      }],
       fileList: [
         {
           name: 'foo.jpeg',
@@ -133,6 +203,7 @@ export default {
         },
       ],
       dialogVisible: false,
+      DetailsFlag: false,
       formFlag: false,
       conferenceInfo: {
         id: '',
@@ -187,6 +258,7 @@ export default {
 
   },
   created() {
+    this.id = 1
     this.getConferenceList()
   },
   methods: {
@@ -201,7 +273,10 @@ export default {
       this.fileList[0].url = this.conferenceInfo.firstPicture
       this.formFlag = true;
     },
-
+    ConferenceDetails(row) {
+      this.conferenceInfo = row
+      this.DetailsFlag = true
+    },
     ConferenceDelete(row) {
       ElMessageBox.confirm(
           this.$i18n.t('MyMessageBox.Box_1') + row.name,
@@ -311,6 +386,54 @@ export default {
     handleExceed() {
       this.$message.error(`Only 1 file can be selected!`);
     },
+    addRoot() {
+      const newChild = {
+        id: ++this.id,
+        level: 1,
+        sort: this.Tree.length + 1,
+        label: this.$i18n.t('MyConferencePage.Input'),
+        content: '### Edit With MarkDown',
+        childrenNum: 0,
+        children: []
+      }
+      this.Tree.push(newChild)
+    },
+    append(node, data) {
+      //node用于获取level，data可以获取点击的data的id以及其他内容
+      const newChild = {
+        id: ++this.id,
+        level: data.level + 1,
+        sort: ++data.childrenNum,
+        label: this.$i18n.t('MyConferencePage.Input'),
+        content: '### Edit With MarkDown',
+        childrenNum: 0,
+        children: []
+      };
+
+      if (!data.children) {
+        data.children = []
+      }
+      data.children.push(newChild);
+      this.data = [...this.data]
+    },
+    TreeEdit(node, data) {
+      this.content=data.content
+    },
+    remove(node, data) {
+      const parent = node.parent;
+      parent.data.childrenNum--
+      const children = parent.data.children || parent.data;
+      const index = children.findIndex(d => d.id === data.id);
+      children.splice(index, 1);
+      for (let i = 0; i < parent.data.childrenNum; i++) {
+        parent.data.children[i].sort = i + 1;
+      }
+      this.data = [...this.data]
+    },
+
+    MenuSubmit(){
+      this.$message("menu submit")
+    }
   }
 }
 
@@ -377,6 +500,51 @@ export default {
   backdrop-filter: blur(30px);
 }
 
+.MyTree {
+  overflow: hidden;
+  border-radius: 20px;
+  padding: 20px;
+  background: rgb(255, 255, 255, 0.5);
+}
+
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
+
+.el-input {
+  --el-input-text-color: var(--el-text-color-regular);
+  --el-input-border: transparent;
+  --el-input-hover-border: transparent;
+  --el-input-focus-border: transparent;
+  --el-input-transparent-border: 0 0 0 1px transparent inset;
+  --el-input-border-color: transparent;
+  --el-input-border-radius: transparent;
+  --el-input-bg-color: transparent;
+  --el-input-icon-color: var(--el-text-color-placeholder);
+  --el-input-placeholder-color: var(--el-text-color-placeholder);
+  --el-input-hover-border-color: transparent;
+  --el-input-clear-hover-color: transparent;
+  --el-input-focus-border-color: transparent;
+  position: relative;
+  font-size: var(--el-font-size-base);
+  display: inline-flex;
+  width: 100%;
+  line-height: 32px;
+}
+.el-divider--vertical {
+  display: inline-block;
+  height: 100%;
+  margin-left: 1%;
+  background: 0 0;
+  border-left: 2px solid #cccccc;
+  position: relative;
+}
+
 </style>
 <style>
 .cell {
@@ -411,8 +579,42 @@ export default {
   --el-drawer-padding-primary: var(--el-dialog-padding-primary, 20px);
 }
 
+.el-overlay {
+  border-radius: 20px !important;
+}
+
+.el-drawer.ltr.open {
+  border-radius: 20px;
+  background: rgb(112, 190, 199, 0.8);
+  --el-drawer-padding-primary: var(--el-dialog-padding-primary, 20px);
+}
+
 .el-drawer__header {
-  margin-bottom: 0;
+  margin: 0 auto;
   color: black;
+}
+.v-md-editor{
+  border-radius: 10px;
+  background-color: rgb(255,255,255,0.5);
+}
+.v-md-textarea-editor textarea{
+  background-color: transparent;
+}
+.v-md-editor-preview{
+  background-color: transparent;
+}
+.vuepress-markdown-body{
+  background-color: transparent;
+}
+.v-md-editor__editor-wrapper{
+  border-right: 1px solid #ffffff!important;
+}
+.v-md-editor__toolbar{
+  border-bottom: 1px solid #ffffff!important;
+}
+.v-md-editor--fullscreen{
+  margin: 1% auto;
+  width: 95%;
+  background: rgb(230,230,230,0.9);
 }
 </style>

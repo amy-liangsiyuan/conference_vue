@@ -97,7 +97,11 @@ module.exports = {
         EditConference:'编辑会议',
         IsSubmit: '您想要提交修改吗？',
         Modify:'提交',
-        Tips:'· 修改首图无需提交 ·'
+        Tips:'· 修改首图无需提交 ·',
+        Details:'更多',
+        AddRoot:'添加根结点',
+        Input:'输入菜单名',
+        Append:'附加',
     },
     MyMessageBox: {
         Box_1: '您确认删除会议',

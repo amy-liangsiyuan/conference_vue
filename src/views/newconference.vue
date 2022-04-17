@@ -1,14 +1,14 @@
 <template>
   <TopNavBar></TopNavBar>
   <!-- banner -->
-  <img style="object-fit:cover;width: 100%;position: absolute;top: 0;height: 40vh" src="../assets/images/home_back.jpg">
+  <img style="object-fit:cover;width: 100%;position: absolute;top: 0;height: 40vh" src="../assets/images/home_back.jpg" alt="">
   <!--主内容-->
   <div class="m-home">
     <div  style="width: 80%;margin: auto">
       <el-row>
         <el-col :span="24"><h1 style="text-align: center">{{$t('NewConference')}}</h1></el-col>
       </el-row>
-      <img style="display:block;object-fit: fill;margin:auto" src="../assets/images/line.png">
+      <img style="display:block;object-fit: fill;margin:auto" src="../assets/images/line.png" alt="">
       <!--会议信息表单-->
       <div class="home_1" style="width: 40%;margin: 20px auto ; border:1px solid #bbe1f1;border-radius:15px;padding: 20px 20px">
         <el-form
@@ -127,7 +127,7 @@ export default {
             required: true,
             message: 'Please Input',
             trigger: 'blur',
-          },
+          }
         ],
       }
     }
