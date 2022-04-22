@@ -90,8 +90,9 @@ module.exports={
         Tips:'· If you want to change first picture, you don\'t need to submit it ·',
         Details:'more',
         AddRoot:'Add New Root',
-        Input:'Input Name',
+        Input:'Input Menu Name',
         Append:'Append',
+        ConferenceMenu:'Edit Conference Menu'
     },
     MyMessageBox: {
         Box_1: 'Are you sure to delete ',

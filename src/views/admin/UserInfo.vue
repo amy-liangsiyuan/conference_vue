@@ -1,7 +1,7 @@
 <template>
-  <div class="myContainer">
-    <div style="opacity:0.8;position:relative;display:flex;width: 90%;padding: 5% 5% 5% 5%;">
-      <el-card class="myCard" >
+  <div class="myContainer" >
+    <div style="opacity:0.8;position:relative;display:flex;width: 90%;padding: 5% 5% 5% 5%" >
+      <el-card class="myCard" v-loading="loading">
         <div style="height: 5%" class="title-item">{{ $t('UserInfoPage.PersonalInformation') }}</div>
         <el-form
             ref="userInfo"
@@ -222,6 +222,7 @@ export default {
       }
     }
     return {
+      loading:false,
       myHeader: {
         token: window.sessionStorage.getItem('token'),
       },
@@ -268,7 +269,12 @@ export default {
     }
   },
   created() {
-    this.getUser()
+    this.loading=true
+    setTimeout(() => {
+      this.getUser()
+      this.loading = false
+    }, 500)
+
   },
   methods: {
     getUser() {
@@ -288,9 +294,14 @@ export default {
           const param = this.$encryption(JSON.stringify(this.newUser))
           const {data: res} = await this.$http.post('/api/server/user/update_user', param)
           if (res.flag) {
-            window.sessionStorage.setItem('user', JSON.stringify(res.data))
-            this.$message.success(res.message)
-            this.getUser()
+            this.loading=true
+            setTimeout(() => {
+              window.sessionStorage.setItem('user', JSON.stringify(res.data))
+              this.$message.success(res.message)
+              this.getUser()
+              this.loading = false
+            }, 500)
+
           } else {
             this.$message.error(res.data.message)
           }

@@ -139,7 +139,7 @@ export default {
           this.conferenceInfo.createTime = this.conferenceInfo.time_arr[0]
           this.conferenceInfo.dropTime = this.conferenceInfo.time_arr[1]
           const param = JSON.stringify(this.conferenceInfo)
-          this.$http.post('/api/server/conference/add_conference', param).then((res) => {
+          this.$http.post('/api/server/conference/addConference', param).then((res) => {
             if (res.data.flag) {
               this.$message.success(res.data.message)
               this.$router.push('/admin')

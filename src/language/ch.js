@@ -102,6 +102,7 @@ module.exports = {
         AddRoot:'添加根结点',
         Input:'输入菜单名',
         Append:'附加',
+        ConferenceMenu:'编辑会议菜单'
     },
     MyMessageBox: {
         Box_1: '您确认删除会议',

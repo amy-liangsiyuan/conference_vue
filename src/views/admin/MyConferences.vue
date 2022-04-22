@@ -2,14 +2,26 @@
   <div class="myContainer">
     <div style="opacity:0.8;position:relative;width: 90%;padding: 5% 5% 5% 5%;">
 
-      <el-table :data="conferenceList" class="MyTable" max-height="630">
+      <el-table :data="conferenceList" class="MyTable" max-height="630" v-loading="loading">
         <el-table-column fixed prop="name" :label="$t('ConferenceInfo.Name')" width="200"/>
         <el-table-column prop="createTime" :label="$t('ConferenceInfo.CreateTime')" width="190"/>
         <el-table-column prop="dropTime" :label="$t('ConferenceInfo.DropTime')" width="190"/>
         <el-table-column prop="city" :label="$t('ConferenceInfo.City')" width="120"/>
         <el-table-column prop="address" :label="$t('ConferenceInfo.Address')" width="270"/>
         <el-table-column prop="department" :label="$t('ConferenceInfo.Department')" width="150"/>
-        <el-table-column prop="state" :label="$t('ConferenceInfo.State')" width="150"/>
+        <el-table-column prop="state" :label="$t('ConferenceInfo.State')" width="150">
+          <template #default="scope">
+            <el-switch :model-value="scope.row.state === 1"
+                       :loading="switchLoading"
+                       @change="changeState(scope.row)"
+                       active-color="#13ce66"
+                       inactive-color="#ff4949"
+                       inline-prompt
+                       active-text="Y"
+                       inactive-text="N"
+            ></el-switch>
+          </template>
+        </el-table-column>
         <el-table-column fixed="right" :label="$t('MyConferencePage.Operation')">
           <template #default="scope">
             <el-button type="text" @click="ConferenceEdit(scope.row)"
@@ -28,13 +40,13 @@
 
       <!--更多设置弹出框-->
       <el-drawer
-          size="95%"
+          size="98%"
           style="border-radius: 20px"
           v-model="DetailsFlag"
           direction="ltr"
-          :title="$t('MyConferencePage.EditConference')"
+          :title="$t('MyConferencePage.ConferenceMenu')"
       >
-        <div class="MyDrawer" style="padding: 2%">
+        <div class="MyDrawer" style="padding: 2%" v-loading="loading">
           <div style="width: 40%;">
             <div>
               <el-button icon="plus" style="margin-bottom: 10px" type="info" @click="addRoot" round>
@@ -53,7 +65,8 @@
                 :expand-on-click-node="false">
               <template #default="{ node, data }">
         <span class="custom-tree-node">
-          <el-input size="small" v-model="data.label"></el-input>
+
+          <el-input class="MyInput" size="small" v-model="data.label"></el-input>
           <span>
             <el-button type="text" @click="append(node,data)">
               {{ $t('MyConferencePage.Append') }}
@@ -70,9 +83,9 @@
           </div>
           <div class="divider div-transparent"></div>
           <el-divider direction="vertical"></el-divider>
-          <div style="width: 60%;margin-left:1%;text-align: left;overflow:hidden">
-              <v-md-editor
-                  v-model="this.content" height="95%"></v-md-editor>
+          <div style="width: 65%;margin-left:1%;text-align: left;overflow:hidden">
+            <v-md-editor
+                v-model="this.Node.content" height="95%"></v-md-editor>
           </div>
         </div>
       </el-drawer>
@@ -80,17 +93,17 @@
 
       <!--基础设置弹出框-->
       <el-drawer
-          size="37%"
+          size="36%"
           style="border-radius: 20px"
           v-model="formFlag"
           :before-close="handleClose"
           direction="rtl"
           :title="$t('MyConferencePage.EditConference')"
       >
-        <div class="MyDrawer">
+        <div class="MyDrawer" v-loading="editLoading">
           <el-form
               ref="conferenceInfo"
-              style="font-size:20px;font-weight:800;margin-top: 20px"
+              style="font-size:20px;font-weight:800;margin-top: 20px;margin-left: -20px"
               :rules="rules"
               :model="conferenceInfo"
               label-width="140px"
@@ -177,25 +190,29 @@ export default {
   name: "UserInfo",
   data() {
     return {
-      id: 1,
-      content:'### Edit With MarkDown',
+      loading: false,
+      switchLoading:false,
+      editLoading:true,
+      Node: {
+        //唯一标识
+        id: '',
+        //几级菜单
+        level: '',
+        //位于当前级的位置
+        sort: '',
+        pid: null,
+        label: '',
+        content: '',
+        childrenNum: 0,
+        children: [],
+        conferenceId: ''
+      },
       myHeader: {
         Authorization: "Bearer " + window.sessionStorage.getItem('token'),
         token: window.sessionStorage.getItem('token'),
         conferenceId: ''
       },
-      Tree: [{
-        //唯一标识
-        id: 1,
-        //几级菜单
-        level: 1,
-        //位于当前级的位置
-        sort: 1,
-        label: this.$i18n.t('MyConferencePage.Input'),
-        content: '### content1',
-        childrenNum: 0,
-        children: []
-      }],
+      Tree: [],
       fileList: [
         {
           name: 'foo.jpeg',
@@ -206,7 +223,7 @@ export default {
       DetailsFlag: false,
       formFlag: false,
       conferenceInfo: {
-        id: '',
+        id: "",
         time_arr: [],
         name: "",
         firstPicture: "",
@@ -258,23 +275,45 @@ export default {
 
   },
   created() {
-    this.id = 1
-    this.getConferenceList()
+    this.loading = true
+    setTimeout(() => {
+      this.getConferenceList()
+      this.loading = false
+    }, 500)
   },
   methods: {
+    async changeState(row) {
+      row.state = row.state === 1 ? 0 : 1
+      await this.$http.get('/api/server/conference/changeState' + row.id).then((res) => {
+        if (res.data.flag) {
+          this.switchLoading = true
+          setTimeout(() => {
+            this.$message.success(res.data.message)
+            this.switchLoading = false
+          }, 500)
+        }
+      })
+    },
     async getConferenceList() {
       const {data: res} = await this.$http.get('/api/server/conference/getMyConference/')
       this.conferenceList = res.data
     },
 
     ConferenceEdit(row) {
-      this.conferenceInfo = row;
-      this.myHeader.conferenceId = this.conferenceInfo.id
-      this.fileList[0].url = this.conferenceInfo.firstPicture
       this.formFlag = true;
+      this.editLoading=true
+      this.fileList[0].url=''
+      setTimeout(() => {
+        this.conferenceInfo = row;
+        this.myHeader.conferenceId = this.conferenceInfo.id
+        this.fileList[0].url = this.conferenceInfo.firstPicture
+        this.editLoading = false
+      }, 700)
+
     },
     ConferenceDetails(row) {
       this.conferenceInfo = row
+      this.getMenu(this.conferenceInfo.id)
       this.DetailsFlag = true
     },
     ConferenceDelete(row) {
@@ -319,7 +358,7 @@ export default {
           this.conferenceInfo.createTime = this.conferenceInfo.time_arr[0]
           this.conferenceInfo.dropTime = this.conferenceInfo.time_arr[1]
           const param = JSON.stringify(this.conferenceInfo)
-          this.$http.post('/api/server/conference/update_conference', param).then((res) => {
+          this.$http.post('/api/server/conference/updateConference', param).then((res) => {
             if (res.data.flag) {
               this.$message.success(res.data.message)
               this.getConferenceList()
@@ -352,7 +391,7 @@ export default {
     },
     //移除图片函数
     handleRemove() {
-      this.$http.delete('/api/server/file/delete_firstPicture', {
+      this.$http.delete('/api/server/file/deleteFirstPicture', {
         headers:
             {
               'conferenceId': this.myHeader.conferenceId
@@ -362,7 +401,7 @@ export default {
           this.$message.success("Remove success!")
           this.getConferenceList()
         } else {
-          this.$message.error("uplad error!")
+          this.$message.error("upload error!")
           this.conferenceInfo.firstPicture = ''
         }
       })
@@ -388,26 +427,30 @@ export default {
     },
     addRoot() {
       const newChild = {
-        id: ++this.id,
+        id: this.guid(),
         level: 1,
         sort: this.Tree.length + 1,
+        pid: null,
         label: this.$i18n.t('MyConferencePage.Input'),
         content: '### Edit With MarkDown',
         childrenNum: 0,
-        children: []
+        children: [],
+        conferenceId: this.conferenceInfo.id
       }
       this.Tree.push(newChild)
     },
     append(node, data) {
       //node用于获取level，data可以获取点击的data的id以及其他内容
       const newChild = {
-        id: ++this.id,
+        id: this.guid(),
         level: data.level + 1,
         sort: ++data.childrenNum,
+        pid: data.id,
         label: this.$i18n.t('MyConferencePage.Input'),
         content: '### Edit With MarkDown',
         childrenNum: 0,
-        children: []
+        children: [],
+        conferenceId: this.conferenceInfo.id
       };
 
       if (!data.children) {
@@ -417,7 +460,7 @@ export default {
       this.data = [...this.data]
     },
     TreeEdit(node, data) {
-      this.content=data.content
+      this.Node = data
     },
     remove(node, data) {
       const parent = node.parent;
@@ -431,9 +474,40 @@ export default {
       this.data = [...this.data]
     },
 
-    MenuSubmit(){
-      this.$message("menu submit")
+    async MenuSubmit() {
+
+      await this.$http.post('/api/server/conference/updatePage', this.Tree).then((res) => {
+        if (res.data.flag) {
+          this.loading = true
+          setTimeout(() => {
+            this.$message.success(res.data.message)
+            this.loading = false
+          }, 500)
+        } else {
+          this.$message.error(res.data.message)
+        }
+      })
+    },
+    //获取对应会议的菜单
+    async getMenu(id) {
+      await this.$http.get('/api/server/conference/findPage' + id).then((res) => {
+        if (res.data.flag) {
+          this.Tree = res.data.data
+        } else {
+          this.$message.error(res.data.message)
+        }
+      })
+    },
+    //uuid生成函数
+    guid() {
+      function S4() {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+      }
+
+      return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
     }
+
+
   }
 }
 
@@ -515,8 +589,7 @@ export default {
   font-size: 14px;
   padding-right: 8px;
 }
-
-.el-input {
+.MyInput{
   --el-input-text-color: var(--el-text-color-regular);
   --el-input-border: transparent;
   --el-input-hover-border: transparent;
@@ -536,6 +609,27 @@ export default {
   width: 100%;
   line-height: 32px;
 }
+/*.el-input {*/
+/*  --el-input-text-color: var(--el-text-color-regular);*/
+/*  --el-input-border: transparent;*/
+/*  --el-input-hover-border: transparent;*/
+/*  --el-input-focus-border: transparent;*/
+/*  --el-input-transparent-border: 0 0 0 1px transparent inset;*/
+/*  --el-input-border-color: transparent;*/
+/*  --el-input-border-radius: transparent;*/
+/*  --el-input-bg-color: transparent;*/
+/*  --el-input-icon-color: var(--el-text-color-placeholder);*/
+/*  --el-input-placeholder-color: var(--el-text-color-placeholder);*/
+/*  --el-input-hover-border-color: transparent;*/
+/*  --el-input-clear-hover-color: transparent;*/
+/*  --el-input-focus-border-color: transparent;*/
+/*  position: relative;*/
+/*  font-size: var(--el-font-size-base);*/
+/*  display: inline-flex;*/
+/*  width: 100%;*/
+/*  line-height: 32px;*/
+/*}*/
+
 .el-divider--vertical {
   display: inline-block;
   height: 100%;
@@ -593,28 +687,35 @@ export default {
   margin: 0 auto;
   color: black;
 }
-.v-md-editor{
+
+.v-md-editor {
   border-radius: 10px;
-  background-color: rgb(255,255,255,0.5);
+  background-color: rgb(255, 255, 255, 0.5);
 }
-.v-md-textarea-editor textarea{
+
+.v-md-textarea-editor textarea {
   background-color: transparent;
 }
-.v-md-editor-preview{
+
+.v-md-editor-preview {
   background-color: transparent;
 }
-.vuepress-markdown-body{
+
+.vuepress-markdown-body {
   background-color: transparent;
 }
-.v-md-editor__editor-wrapper{
-  border-right: 1px solid #ffffff!important;
+
+.v-md-editor__editor-wrapper {
+  border-right: 1px solid #ffffff !important;
 }
-.v-md-editor__toolbar{
-  border-bottom: 1px solid #ffffff!important;
+
+.v-md-editor__toolbar {
+  border-bottom: 1px solid #ffffff !important;
 }
-.v-md-editor--fullscreen{
+
+.v-md-editor--fullscreen {
   margin: 1% auto;
   width: 95%;
-  background: rgb(230,230,230,0.9);
+  background: rgb(230, 230, 230, 0.9);
 }
 </style>

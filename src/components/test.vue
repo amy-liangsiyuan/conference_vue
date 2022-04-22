@@ -1,13 +1,21 @@
 <template>
-  <v-md-editor v-model="text" height="400px"></v-md-editor>
+  <el-button @click="test"></el-button>
 </template>
 
 <script>
 export default {
-  data() {
-    return {
-      text: '',
-    };
-  },
-};
+  methods:{
+    async test() {
+      await this.$http.get('/api/server/conference/get_page'+'1507795422150705153').then((res) => {
+        if (res.data.flag) {
+          this.$message.success(res.data.message)
+        } else {
+          this.$message.error(res.data.message)
+        }
+      })
+    }
+  }
+}
+
+
 </script>

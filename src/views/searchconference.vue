@@ -22,7 +22,7 @@
         </el-form>
       </div>
       <!--查询结果展示-->
-      <div style="width: 80%;margin: 0 auto">
+      <div style="width: 80%;margin: 0 auto" v-loading="loading">
         <el-row>
           <el-col
               style="align-items: stretch;margin-bottom: 20px"
@@ -74,6 +74,7 @@ export default {
   name: "searchconference",
   data() {
     return {
+      loading: false,
       Query: {
         currentPage: 1,
         pageSize: 5,
@@ -89,13 +90,15 @@ export default {
     Footer
   },
   created() {
-    setTimeout(()=>{
-      this.searchSubmit()
-    },300)
+    this.searchSubmit()
 
   },
   methods: {
     async searchSubmit() {
+      this.loading = true
+      setTimeout(() => {
+        this.loading = false
+      }, 500)
       const {data: res} = await this.$http.post('/api/server/conference/searchPage', JSON.stringify(this.Query))
       this.searchList = res.data.list
       this.Query.total = res.data.total
@@ -107,7 +110,7 @@ export default {
       alert(conferenceId)
     },
     async handleCurrentPage(currentPage) {
-      this.Query.currentPage=currentPage
+      this.Query.currentPage = currentPage
       const {data: res} = await this.$http.post('/api/server/conference/searchPage', JSON.stringify(this.Query))
       this.searchList = res.data.list
       this.Query.total = res.data.total
@@ -126,13 +129,15 @@ export default {
   min-height: 40vh;
   margin: auto;
 }
-.el-card{
-  background: rgb(240,240,240,0.2);
+
+.el-card {
+  background: rgb(240, 240, 240, 0.2);
   backdrop-filter: blur(10px);
   border-radius: 20px;
 }
+
 .el-card:hover {
-  transition:all 0.2s;
+  transition: all 0.2s;
   margin: 1% -3% 1% -3%;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
 
