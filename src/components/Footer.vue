@@ -22,13 +22,18 @@
   background-size: 400% 400%;
   backdrop-filter: blur(20px);
   opacity: 0.7;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
   animation: Gradient 10s ease infinite;
-  margin-top: 5%;
+  margin-top: 3%;
+  transition: all .5s;
 }
 .footer-wrap a {
   color: #eee !important;
+}
+.footer-wrap:hover{
+  transition:all .5s;
+  box-shadow: 0 0 6px rgba(0,0,0,0.5);
 }
 @keyframes Gradient {
   0% {

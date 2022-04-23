@@ -71,7 +71,7 @@
             <el-button type="text" @click="append(node,data)">
               {{ $t('MyConferencePage.Append') }}
             </el-button>
-            <el-button type="text" @click="TreeEdit(node, data)">
+            <el-button v-if="data.childrenNum===0" type="text" @click="TreeEdit(node, data)">
               {{ $t('MyConferencePage.Edit') }}
             </el-button><el-button type="text" style="color: red" @click="remove(node, data)">
               {{ $t('MyConferencePage.Delete') }}
@@ -84,8 +84,7 @@
           <div class="divider div-transparent"></div>
           <el-divider direction="vertical"></el-divider>
           <div style="width: 65%;margin-left:1%;text-align: left;overflow:hidden">
-            <v-md-editor
-                v-model="this.Node.content" height="95%"></v-md-editor>
+            <v-md-editor v-model="this.Node.content" height="95%"></v-md-editor>
           </div>
         </div>
       </el-drawer>

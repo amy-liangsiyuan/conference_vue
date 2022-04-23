@@ -5,12 +5,14 @@
     <div class="home-banner">
       <div class="banner-container">
         <h1 class="blog-title animated zoomIn">
-          {{$t('PlatformName')}}
+          {{ $t('PlatformName') }}
         </h1>
         <!-- 向下滚动 -->
         <div class="scroll-down" @click="scrollDown">
-          <el-icon><arrow-down-bold /></el-icon>
-          <h4>{{$t('ScrollDown')}}<i class="el-icon-arrow-down"></i></h4>
+          <el-icon>
+            <arrow-down-bold/>
+          </el-icon>
+          <h4>{{ $t('ScrollDown') }}<i class="el-icon-arrow-down"></i></h4>
         </div>
       </div>
     </div>
@@ -19,7 +21,7 @@
   <div class="m-home">
     <div style="width: 80%;margin: auto">
       <el-row>
-        <el-col :span="24"><h1 style="text-align: center">{{$t('HomePage.Home_1')}}</h1></el-col>
+        <el-col :span="24"><h1 style="text-align: center">{{ $t('HomePage.Home_1') }}</h1></el-col>
       </el-row>
       <img style="display:block;object-fit: fill;margin:auto" src="../assets/images/line.png">
       <el-row :gutter="20">
@@ -29,7 +31,7 @@
                 :src="require('../assets/images/describe_1.jpg')"
             />
             <div style="padding: 14px;text-align: center">
-              <h3>{{$t('HomePage.Home_2')}}</h3>
+              <h3>{{ $t('HomePage.Home_2') }}</h3>
             </div>
           </el-card>
         </el-col>
@@ -39,7 +41,7 @@
                 :src="require('../assets/images/describe_2.jpg')"
             />
             <div style="padding: 14px;text-align: center">
-              <h3>{{$t('HomePage.Home_3')}}</h3>
+              <h3>{{ $t('HomePage.Home_3') }}</h3>
             </div>
           </el-card>
         </el-col>
@@ -49,7 +51,7 @@
                 :src="require('../assets/images/describe_3.jpg')"
             />
             <div style="padding: 14px;text-align: center">
-              <h3>{{$t('HomePage.Home_4')}}</h3>
+              <h3>{{ $t('HomePage.Home_4') }}</h3>
             </div>
           </el-card>
         </el-col>
@@ -59,14 +61,14 @@
                 :src="require('../assets/images/describe_4.jpg')"
             />
             <div style="padding: 14px;text-align: center">
-              <h3>{{$t('HomePage.Home_5')}}</h3>
+              <h3>{{ $t('HomePage.Home_5') }}</h3>
             </div>
           </el-card>
         </el-col>
       </el-row>
       <!-- 推荐会议-->
       <el-row>
-        <el-col :span="24"><h1 style="text-align: center">{{$t('HomePage.Home_6')}}</h1></el-col>
+        <el-col :span="24"><h1 style="text-align: center">{{ $t('HomePage.Home_6') }}</h1></el-col>
       </el-row>
       <img style="display:block;object-fit: fill;margin:auto" src="../assets/images/line.png">
       <el-row :gutter="25">
@@ -88,7 +90,9 @@
 
               </div>
               <div style="float: right">
-                <el-button type="primary" style="padding: 10px;margin-bottom: 10px" @click="toConference(item.id)">{{$t('HomePage.Home_7')}}</el-button>
+                <el-button type="primary" style="padding: 10px;margin-bottom: 10px" @click="toConference(item.id)">
+                  {{ $t('HomePage.Home_7') }}
+                </el-button>
               </div>
             </div>
           </el-card>
@@ -103,6 +107,7 @@
 <script>
 import TopNavBar from '../components/TopNavBar'
 import Footer from '../components/Footer'
+
 export default {
   components: {
     TopNavBar,
@@ -144,7 +149,8 @@ export default {
   },
   methods: {
     toConference(conferenceId) {
-      alert(conferenceId)
+      localStorage.setItem('conferenceId',conferenceId)
+      this.$router.push('/conferencePage')
     },
     scrollDown() {
       window.scrollTo({
@@ -196,17 +202,20 @@ export default {
 .blog-contact a {
   color: #fff !important;
 }
-.el-card{
-  background: rgb(240,240,240,0.2);
+
+.el-card {
+  background: rgb(240, 240, 240, 0.2);
   backdrop-filter: blur(5px);
   border-radius: 20px;
 
 }
+
 .el-card:hover {
-  transition:all 0.2s;
+  transition: all 0.2s;
   /*margin: 0 1% 0 1%;*/
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
 }
+
 .card-info-social {
   line-height: 40px;
   text-align: center;
@@ -332,7 +341,6 @@ export default {
 .scroll-down i {
   font-size: 2rem;
 }
-
 
 
 @keyframes scroll-down-effect {

@@ -12,7 +12,9 @@ import JsEncrypt from 'jsencrypt'
 import VueI18n from './language'
 //md编辑器
 import VMdEditor from '@kangc/v-md-editor';
+import VMdPreview from '@kangc/v-md-editor/lib/preview';
 import '@kangc/v-md-editor/lib/style/base-editor.css';
+import '@kangc/v-md-editor/lib/style/preview.css';
 import vuepressTheme from '@kangc/v-md-editor/lib/theme/vuepress.js';
 import '@kangc/v-md-editor/lib/theme/style/vuepress.css';
 // Prism
@@ -29,6 +31,7 @@ app.use(router)
 app.use(ElementPlus)
 app.use(VueI18n)
 app.use(VMdEditor)
+app.use(VMdPreview)
 app.mount('#app')
 //注册使用icon
 Object.keys(Icons).forEach(key => {
@@ -66,7 +69,6 @@ axios.interceptors.response.use(config => {
 })
 
 
-
 // 路由判断登录 根据路由配置文件的参数
 router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.requireAuth)) { // 判断该路由是否需要登录权限
@@ -76,7 +78,20 @@ router.beforeEach((to, from, next) => {
             next({
                 path: '/login',
             })
+        }
+    } else {
+        next();
+    }
+});
 
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.requireId)) { // 判断该路由是否需要登录权限
+        if (localStorage.conferenceId) { // 判断当前的token是否存在 ； 登录存入的token
+            next();
+        } else {
+            next({
+                path: '/',
+            })
         }
     } else {
         next();

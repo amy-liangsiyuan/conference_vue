@@ -1,21 +1,17 @@
 <template>
-  <el-button @click="test"></el-button>
+  <v-md-editor v-model="markdown" mode="preview"></v-md-editor>
 </template>
 
 <script>
+import { ref } from 'vue';
+
 export default {
-  methods:{
-    async test() {
-      await this.$http.get('/api/server/conference/get_page'+'1507795422150705153').then((res) => {
-        if (res.data.flag) {
-          this.$message.success(res.data.message)
-        } else {
-          this.$message.error(res.data.message)
-        }
-      })
+  setup () {
+    const markdown = ref('123');
+
+    return {
+      markdown
     }
   }
 }
-
-
 </script>
