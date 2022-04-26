@@ -33,7 +33,7 @@
           </el-form-item>
           <el-form-item :label="$t('ConferenceInfo.Time')" prop="time_arr">
             <el-date-picker
-                format="YYYY/MM/DD hh:mm"
+                format="YYYY-MM-DD hh:mm"
                 value-format="YYYY-MM-DD hh:mm"
                 v-model="conferenceInfo.time_arr"
                 type="datetimerange"

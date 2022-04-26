@@ -7,7 +7,7 @@
         <el-table-column prop="createTime" :label="$t('ConferenceInfo.CreateTime')" width="190"/>
         <el-table-column prop="dropTime" :label="$t('ConferenceInfo.DropTime')" width="190"/>
         <el-table-column prop="city" :label="$t('ConferenceInfo.City')" width="120"/>
-        <el-table-column prop="address" :label="$t('ConferenceInfo.Address')" width="270"/>
+        <el-table-column prop="address" :label="$t('ConferenceInfo.Address')" width="250"/>
         <el-table-column prop="department" :label="$t('ConferenceInfo.Department')" width="150"/>
         <el-table-column prop="state" :label="$t('ConferenceInfo.State')" width="150">
           <template #default="scope">
@@ -17,8 +17,8 @@
                        active-color="#13ce66"
                        inactive-color="#ff4949"
                        inline-prompt
-                       active-text="Y"
-                       inactive-text="N"
+                       active-text="O"
+                       inactive-text="X"
             ></el-switch>
           </template>
         </el-table-column>
@@ -46,7 +46,17 @@
           direction="ltr"
           :title="$t('MyConferencePage.ConferenceMenu')"
       >
-        <div class="MyDrawer" style="padding: 2%" v-loading="loading">
+        <div style="margin:-10px auto 10px;border-radius:20px;width: 14%;background: rgb(255, 255, 255, 0.5)">
+          <el-switch
+              :model-value="activeName === 'Menu'"
+              @change="activeName=activeName==='Menu'?'Info':'Menu'"
+              active-color="#5c9df3"
+              inactive-color="#5c9df3"
+              :active-text="$t('MyConferencePage.MenuSetting')"
+              :inactive-text="$t('MyConferencePage.CalendarSetting')"
+          ></el-switch>
+        </div>
+        <div v-if="activeName==='Menu'" class="MyDrawer" style="padding: 2%" v-loading="loading">
           <div style="width: 40%;">
             <div>
               <el-button icon="plus" style="margin-bottom: 10px" type="info" @click="addRoot" round>
@@ -64,27 +74,74 @@
                 default-expand-all
                 :expand-on-click-node="false">
               <template #default="{ node, data }">
-        <span class="custom-tree-node">
+                <span class="custom-tree-node">
 
           <el-input class="MyInput" size="small" v-model="data.label"></el-input>
-          <span>
-            <el-button type="text" @click="append(node,data)">
-              {{ $t('MyConferencePage.Append') }}
-            </el-button>
-            <el-button v-if="data.childrenNum===0" type="text" @click="TreeEdit(node, data)">
-              {{ $t('MyConferencePage.Edit') }}
-            </el-button><el-button type="text" style="color: red" @click="remove(node, data)">
-              {{ $t('MyConferencePage.Delete') }}
-            </el-button>
-          </span>
-        </span>
+                  <span>
+                      <el-button type="text" @click="append(node,data)">
+                        {{ $t('MyConferencePage.Append') }}
+                      </el-button>
+                      <el-button v-if="data.childrenNum===0" type="text" @click="TreeEdit(node, data)">
+                      {{ $t('MyConferencePage.Edit') }}
+                      </el-button>
+                      <el-button type="text" style="color: red" @click="remove(node, data)">
+                        {{ $t('MyConferencePage.Delete') }}
+                      </el-button>
+                  </span>
+                </span>
               </template>
             </el-tree>
           </div>
-          <div class="divider div-transparent"></div>
           <el-divider direction="vertical"></el-divider>
-          <div style="width: 65%;margin-left:1%;text-align: left;overflow:hidden">
+          <div style="height:100%;width: 65%;margin-left:1%;text-align: left;overflow:hidden">
             <v-md-editor v-model="this.Node.content" height="95%"></v-md-editor>
+          </div>
+        </div>
+        <!--通知设置-->
+        <div v-else class="MyDrawer" style="padding: 2%;" v-loading="loading">
+          <div style="width: 50%;margin-right: 4%">
+            <div>
+              <el-button icon="plus" style="margin-bottom: 10px" type="info" @click="addInfoLine" round>
+                {{ $t('MyConferencePage.AddInfoLine') }}
+              </el-button>
+              <el-button icon="check" style="margin-bottom: 10px" type="primary" @click="submitInfo" round>
+                {{ $t('MyConferencePage.Modify') }}
+              </el-button>
+            </div>
+            <div style="height:auto;border-radius: 20px;padding: 20px;background: rgb(255, 255, 255, 0.5)">
+              <div v-for="item in InfoLine" :key="item.id" style="display: flex;margin-bottom: 10px;width: 100%">
+                <el-row style="width: 100%;margin-top: 10px">
+                  <el-col style="text-align: left">
+                    <div>
+                      <el-input maxlength="30" class="MyInput_2" v-model="item.title" style="width: 85%">
+                        <template #prepend>{{ $t('MyConferencePage.Title') }}</template>
+                      </el-input>
+                      <el-button style="margin-left: 1%" type="danger" @click="removeInfoLine(item.id)" round>
+                        {{ $t('MyConferencePage.Delete') }}
+                      </el-button>
+                    </div>
+                  </el-col>
+                  <el-col>
+                    <el-input maxlength="200" :placeholder="$t('MyConferencePage.Content')" type="textarea"
+                              class="MyInput_2"
+                              v-model="item.content">
+                    </el-input>
+                  </el-col>
+                </el-row>
+              </div>
+            </div>
+          </div>
+          <el-divider direction="vertical"></el-divider>
+          <div style="width: 50%;margin-left:1%">
+            <el-timeline style="text-align: left;margin: 0 auto">
+              <el-timeline-item
+                  placement="top"
+                  v-for="Info in InfoLine"
+                  :key="Info.id"
+                  :timestamp="Info.title">
+                <el-card style="white-space: pre-wrap; word-break: break-all;">{{ Info.content }}</el-card>
+              </el-timeline-item>
+            </el-timeline>
           </div>
         </div>
       </el-drawer>
@@ -122,7 +179,7 @@
             </el-form-item>
             <el-form-item :label="$t('ConferenceInfo.Time')" prop="time_arr">
               <el-date-picker
-                  format="YYYY/MM/DD hh:mm"
+                  format="YYYY-MM-DD hh:mm"
                   value-format="YYYY-MM-DD hh:mm"
                   v-model="conferenceInfo.time_arr"
                   type="datetimerange"
@@ -190,8 +247,10 @@ export default {
   data() {
     return {
       loading: false,
-      switchLoading:false,
-      editLoading:true,
+      switchLoading: false,
+      editLoading: true,
+      activeName: 'Menu',
+      InfoLine: [],
       Node: {
         //唯一标识
         id: '',
@@ -281,6 +340,11 @@ export default {
     }, 500)
   },
   methods: {
+    async getInfoList(id) {
+      await this.$http.get('/api/server/conference/getInfoList' + id).then((res)=>{
+        this.InfoLine=res.data.data
+      })
+    },
     async changeState(row) {
       row.state = row.state === 1 ? 0 : 1
       await this.$http.get('/api/server/conference/changeState' + row.id).then((res) => {
@@ -300,8 +364,8 @@ export default {
 
     ConferenceEdit(row) {
       this.formFlag = true;
-      this.editLoading=true
-      this.fileList[0].url=''
+      this.editLoading = true
+      this.fileList[0].url = ''
       setTimeout(() => {
         this.conferenceInfo = row;
         this.myHeader.conferenceId = this.conferenceInfo.id
@@ -312,8 +376,13 @@ export default {
     },
     ConferenceDetails(row) {
       this.conferenceInfo = row
-      this.getMenu(this.conferenceInfo.id)
       this.DetailsFlag = true
+      this.loading = true
+      setTimeout(() => {
+        this.getMenu(this.conferenceInfo.id)
+        this.getInfoList(this.conferenceInfo.id)
+        this.loading = false
+      }, 500)
     },
     ConferenceDelete(row) {
       ElMessageBox.confirm(
@@ -474,7 +543,6 @@ export default {
     },
 
     async MenuSubmit() {
-
       await this.$http.post('/api/server/conference/updatePage', this.Tree).then((res) => {
         if (res.data.flag) {
           this.loading = true
@@ -497,6 +565,30 @@ export default {
         }
       })
     },
+    //添加通知
+    addInfoLine() {
+      this.InfoLine.push({
+        id: this.guid(),
+        title: '',
+        content: '',
+        conferenceId: this.conferenceInfo.id,
+        createTime: this.getCurrentTime()
+      })
+    },
+    async submitInfo() {
+      await this.$http.post('/api/server/conference/updateInfo', this.InfoLine).then((res) => {
+        if (res.data.flag) {
+          this.loading=true
+          setTimeout(()=>{
+            this.$message.success(res.data.message)
+            this.loading=false
+          },500)
+
+        } else {
+          this.$message.error(res.data.message)
+        }
+      })
+    },
     //uuid生成函数
     guid() {
       function S4() {
@@ -504,9 +596,22 @@ export default {
       }
 
       return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+    },
+    //当前时间生成
+    getCurrentTime() {
+      let yy = new Date().getFullYear();
+      let mm = (new Date().getMonth() + 1) < 10 ? '0' + (new Date().getMonth() + 1) : (new Date().getMonth() + 1);
+      let dd = new Date().getDate() < 10 ? '0' + new Date().getDate() : new Date().getDate();
+      let hh = new Date().getHours();
+      let mf = new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes();
+      let ss = new Date().getSeconds() < 10 ? '0' + new Date().getSeconds() : new Date().getSeconds();
+      return yy + '-' + mm + '-' + dd + ' ' + hh + ':' + mf + ':' + ss;
+    },
+    //移除通知
+    removeInfoLine(id) {
+      const Info = this.InfoLine.findIndex(I => I.id === id)
+      this.InfoLine.splice(Info, 1)
     }
-
-
   }
 }
 
@@ -566,7 +671,7 @@ export default {
   position: relative;
   display: flex;
   width: 100%;
-  height: 100%;
+  height: 95%;
   opacity: 1;
   background-color: rgb(255, 255, 255, 0.25);
   border-radius: 20px;
@@ -588,7 +693,8 @@ export default {
   font-size: 14px;
   padding-right: 8px;
 }
-.MyInput{
+
+.MyInput {
   --el-input-text-color: var(--el-text-color-regular);
   --el-input-border: transparent;
   --el-input-hover-border: transparent;
@@ -608,6 +714,27 @@ export default {
   width: 100%;
   line-height: 32px;
 }
+
+.MyInput_2 {
+  --el-input-text-color: var(--el-text-color-regular);
+  --el-input-border: 1px solid #dcdcdc;
+  --el-input-hover-border: 1px solid #dcdcdc;
+  --el-input-focus-border: 1px solid #dcdcdc;
+  --el-input-transparent-border: 0 0 0 1px #dcdcdc inset;
+  --el-input-border-color: #dcdcdc;
+  --el-input-border-radius: 10px;
+  --el-input-bg-color: rgb(255, 255, 255, 0.5);
+  --el-input-icon-color: var(--el-text-color-placeholder);
+  --el-input-placeholder-color: var(--el-text-color-placeholder);
+  --el-input-hover-border-color: #dcdcdc;
+  --el-input-clear-hover-color: #dcdcdc;
+  --el-input-focus-border-color: #dcdcdc;
+  position: relative;
+  font-size: var(--el-font-size-base);
+  width: 100%;
+  line-height: 32px;
+}
+
 /*.el-input {*/
 /*  --el-input-text-color: var(--el-text-color-regular);*/
 /*  --el-input-border: transparent;*/
@@ -637,7 +764,6 @@ export default {
   border-left: 2px solid #cccccc;
   position: relative;
 }
-
 </style>
 <style>
 .cell {

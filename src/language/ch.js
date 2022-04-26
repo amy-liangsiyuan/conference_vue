@@ -93,7 +93,7 @@ module.exports = {
     MyConferencePage: {
         Operation: '操作',
         Delete: '删除',
-        Edit: '编辑',
+        Edit: '设置',
         EditConference:'编辑会议',
         IsSubmit: '您想要提交修改吗？',
         Modify:'提交',
@@ -102,12 +102,21 @@ module.exports = {
         AddRoot:'添加根结点',
         Input:'输入菜单名',
         Append:'附加',
-        ConferenceMenu:'编辑会议菜单'
+        ConferenceMenu:'编辑会议菜单',
+        MenuSetting:'菜单设置',
+        CalendarSetting:'通知设置',
+        AddInfoLine:'添加通知',
+        Title:'标题/日期:',
+        Content:'内容:'
     },
     MyMessageBox: {
         Box_1: '您确认删除会议',
         Box_2: '取消删除',
         Box_3: '删除成功',
+    },
+    ConferencePage:{
+        Login_Register:'登录/注册',
+        Submit: '提交文档'
     }
 
 

@@ -83,20 +83,29 @@ module.exports={
     MyConferencePage:{
         Operation:'Operation',
         Delete:'Delete',
-        Edit:'Edit',
+        Edit:'Setting',
         EditConference:'Edit Conference',
         IsSubmit:'Do you want to submit? ',
         Modify:'Submit',
         Tips:'· If you want to change first picture, you don\'t need to submit it ·',
-        Details:'more',
+        Details:'Details',
         AddRoot:'Add New Root',
         Input:'Input Menu Name',
         Append:'Append',
-        ConferenceMenu:'Edit Conference Menu'
+        ConferenceMenu:'Edit Conference Menu',
+        MenuSetting:'Menu',
+        CalendarSetting:'Inform',
+        AddInfoLine:'Add Inform',
+        Title:'Title/Time:',
+        Content:'Content:'
     },
     MyMessageBox: {
         Box_1: 'Are you sure to delete ',
         Box_2: 'Delete canceled',
         Box_3: 'Delete completed',
+    },
+    ConferencePage:{
+        Login_Register:'Login/Register',
+        Submit: 'Submit Document'
     }
 }
