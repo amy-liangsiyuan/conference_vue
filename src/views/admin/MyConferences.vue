@@ -135,6 +135,9 @@
           <div style="width: 50%;margin-left:1%">
             <el-timeline style="text-align: left;margin: 0 auto">
               <el-timeline-item
+                  type="primary"
+                  size="large"
+                  hollow
                   placement="top"
                   v-for="Info in InfoLine"
                   :key="Info.id"

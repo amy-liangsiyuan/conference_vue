@@ -4,11 +4,6 @@
       <img class="topImg"
            :src=this.conferenceInfo.firstPicture alt="">
     </div>
-    <!--分割线-->
-<!--    <div style="width:100%;margin-top:10px;text-align: center;margin-bottom: 5px">-->
-<!--&lt;!&ndash;      <h1 style="text-align: center">{{ this.conferenceInfo.name }}</h1>&ndash;&gt;-->
-<!--      <img src="../assets/images/line.png">-->
-<!--    </div>-->
     <div class="contentContainer">
       <div style="display: flex">
         <div class="menuContainer">
@@ -26,11 +21,20 @@
         </div>
         <div class="infoContainer">
           <div style="margin:0 auto;text-align: center">
-            <el-button type="primary" round>{{$t('ConferencePage.Login_Register')}}</el-button>
-            <el-button type="success" round>{{$t('ConferencePage.Submit')}}</el-button>
+            <el-button v-if="isLogin" @click="LoginOut" type="danger" round>
+              {{ $t('TopNavBar.LogOut') }}
+            </el-button>
+            <el-button v-else @click="Login_Register" type="primary" round>{{
+                $t('ConferencePage.Login_Register')
+              }}
+            </el-button>
+            <el-button v-if="isLogin" type="success" round>{{ $t('ConferencePage.Submit') }}</el-button>
           </div>
           <el-timeline style="margin-left: -40px;margin-top: 30px;margin-right: 5px">
             <el-timeline-item
+                type="primary"
+                size="large"
+                hollow
                 placement="top"
                 v-for="Info in InfoLine"
                 :key="Info.id"
@@ -40,7 +44,68 @@
           </el-timeline>
         </div>
       </div>
-
+      <el-drawer
+          size="30%"
+          v-model="dialogFlag"
+          direction="rtl"
+      >
+        <div style="text-align: center;margin-bottom: 50px">
+          <el-switch
+              :model-value="activeName === 'Register'"
+              @change="activeName=activeName==='Login'?'Register':'Login'"
+              active-color="#5c9df3"
+              inactive-color="#5c9df3"
+              :active-text="$t('Register')"
+              :inactive-text="$t('Login')"
+          ></el-switch>
+        </div>
+        <div v-if="activeName==='Register'">
+          <!--注册-->
+          <el-form
+              ref="participantInfo"
+              style="font-size:20px;font-weight:800;margin-top: 20px"
+              :model="participantRegisterInfo"
+              label-width="120px"
+              label-position="right"
+          >
+            <el-form-item :label="$t('UserInfo.UserName')" prop="name" required>
+              <el-input maxlength="10" v-model.trim="participantRegisterInfo.name"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('UserInfo.Phone')" prop="phone" required>
+              <el-input maxlength="11" v-model.trim="participantRegisterInfo.phone"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('UserInfo.Email')" prop="mail" required>
+              <el-input maxlength="30" v-model.trim="participantRegisterInfo.mail"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('UserInfo.PassWord')" prop="password" required>
+              <el-input maxlength="15" v-model.trim="participantRegisterInfo.password" type="password"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" size="large" @click="Register">{{ $t('Register') }}</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+        <div v-else>
+          <!--登录-->
+          <el-form
+              ref="participantInfo"
+              style="font-size:20px;font-weight:800;margin-top: 20px"
+              :model="participantLoginInfo"
+              label-width="120px"
+              label-position="right"
+          >
+            <el-form-item :label="$t('UserInfo.Email')" prop="mail" required>
+              <el-input maxlength="30" v-model.trim="participantLoginInfo.mail"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('UserInfo.PassWord')" prop="password" required>
+              <el-input maxlength="15" v-model.trim="participantLoginInfo.password" type="password"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" size="large" @click="Login">{{ $t('Login') }}</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+      </el-drawer>
     </div>
     <Footer style="width: 85%;margin: auto"></Footer>
   </div>
@@ -56,20 +121,43 @@ export default {
   data() {
     return {
       loading: false,
+      dialogFlag: false,
+      activeName: 'Login',
+      isLogin:false,
       content: '',
       conferenceId: '',
       Tree: [],
-      InfoLine:[],
-      conferenceInfo: {}
+      InfoLine: [],
+      conferenceInfo: {},
+      participant:{
+        name:'',
+        phone:'',
+        mail:'',
+      },
+      participantRegisterInfo: {
+        name: '',
+        phone: '',
+        mail: '',
+        password: '',
+      },
+      participantLoginInfo: {
+        mail: '',
+        password: '',
+      }
     }
   },
   created() {
     this.loading = true
     setTimeout(() => {
       this.conferenceId = localStorage.getItem('conferenceId')
+      this.getParticipant()
       this.getMenu(this.conferenceId).then(() => {
         this.setContent(this.Tree)
-        this.getConference(this.conferenceId)
+        this.getConference(this.conferenceId).then(() => {
+          const local = this.conferenceInfo.language === '1' ? 'ch' : 'en'
+          localStorage.setItem('lang', local)
+          this.$i18n.locale = local
+        })
         this.getInfoList(this.conferenceId)
       })
       this.loading = false
@@ -78,10 +166,53 @@ export default {
 
   },
   methods: {
+    //注册提交方法
+    async Register() {
+      await this.$http.post('/api/server/participant/register'+this.conferenceId,this.participantRegisterInfo).then((res)=>{
+        if (res.data.flag){
+          this.$message.success(res.data.message)
+          this.dialogFlag=false
+        }else {
+          this.$message.error(res.data.message)
+        }
+      })
+    },
+    //登录提交方法
+    async Login() {
+      await this.$http.post('/api/server/participant/login'+this.conferenceId,this.participantLoginInfo).then((res)=>{
+        if (res.data.flag){
+          this.$message.success(res.data.message)
+          sessionStorage.setItem('participant',JSON.stringify(res.data.data))
+          this.isLogin=true
+          this.dialogFlag=false
+        }else {
+          this.$message.error(res.data.message)
+        }
+      })
+    },
+    //参与者登出方法
+    LoginOut(){
+      sessionStorage.removeItem('participant')
+      this.isLogin=false
+    },
+    //登录注册触发方法
+    Login_Register() {
+      this.dialogFlag = true
+    },
+    //获取参与者
+    getParticipant(){
+      if (sessionStorage.getItem('participant')){
+        this.isLogin=true
+        const participant=JSON.parse(sessionStorage.getItem('participant'))
+        this.participant.name=participant.name
+        this.participant.mail=participant.mail
+        this.participant.phone=participant.phone
+      }
+    },
     //获取通知列表
     async getInfoList(id) {
-      await this.$http.get('/api/server/conference/getInfoList' + id).then((res)=>{
-        this.InfoLine=res.data.data
+      await this.$http.get('/api/server/conference/getInfoList' + id).then((res) => {
+        this.InfoLine = res.data.data
       })
     },
     //获取会议信息
@@ -131,6 +262,7 @@ export default {
   min-height: 100vh;
   width: 101%;
 }
+
 /*分割图片容器*/
 .imgContainer {
   margin: 0 auto;
@@ -143,6 +275,7 @@ export default {
   width: 85%;
 
 }
+
 /*左侧菜单容器*/
 .menuContainer {
   background-color: rgb(247, 247, 247, 0.9);
@@ -154,6 +287,7 @@ export default {
   height: 75vh;
   transition: all .5s;
 }
+
 .menuContainer:hover {
   transition: all .5s;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
@@ -221,6 +355,14 @@ export default {
 
 }
 
+/*弹出对话框*/
+。MyDialog {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  z-index: 200;
+}
+
 /*描述内文字样式*/
 .cell-item {
   word-wrap: break-word;
@@ -231,12 +373,14 @@ export default {
   line-height: 24px;
   font-weight: 900;
 }
-.el-card{
+
+.el-card {
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   transition: all .5s;
 }
-.el-card:hover{
+
+.el-card:hover {
   transition: all .5s;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
 }
