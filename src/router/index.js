@@ -49,7 +49,9 @@ const routes = [
         children:
             [
                 {path: 'userinfo', component: () => import("../views/admin/UserInfo")},
-                {path: 'myconference', component: () => import("../views/admin/MyConferences")}
+                {path: 'myconference', component: () => import("../views/admin/MyConferences")},
+                {path: 'participantManagement', component: () => import("../views/admin/participantManagement")},
+                {path: 'paperManagement', component:()=>import("../views/admin/paperManagement")}
 
             ]
     }

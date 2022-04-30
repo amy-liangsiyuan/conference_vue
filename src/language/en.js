@@ -7,7 +7,7 @@ module.exports={
     Submit:'Submit',
     NewConference:'New Conference',
     UserInfo:{
-        UserName:'User Name',
+        UserName:'Name',
         PassWord:'Password',
         Email: 'Email',
         Phone: 'Phone',
@@ -42,7 +42,7 @@ module.exports={
         Home_1:'Change The Traditional Mode Of Organizing Meetings',
         Home_2:'Easily Publish Conference Information',
         Home_3:'Flexible Customization Of Conference Cervices',
-        Home_4:'Streamlined Online Papers Review',
+        Home_4:'The Streamlined Online Papers Review System',
         Home_5:'Custom Meeting Notification And Feedback',
         Home_6:'Recommended Meeting',
         Home_7:'Participate',
@@ -72,6 +72,9 @@ module.exports={
         SelfInfo:'Personal Information',
         ConferenceInfo: 'Conference',
         LogOut:'Sign Out',
+        ConferenceManagement:'Management',
+        ParticipantManagement:'Participants',
+        PaperManagement:'Papers'
 
     },
     UserInfoPage:{
@@ -106,6 +109,29 @@ module.exports={
     },
     ConferencePage:{
         Login_Register:'Login/Register',
-        Submit: 'Submit Document'
+        Submit: 'Submit Document',
+        ClickToUpload:'Click To Upload',
+        ClickTips:'Submit a maximum of 5 files',
+        Reupload:'Reupload'
+    },
+    ParticipantManagementPage:{
+        Reviewing:'Referee',
+        Participants:'Participants',
+        Remove:'Remove',
+    },
+    PaperInfo:{
+        Name:'Name',
+        CreateTime:'Date',
+        Participant:'Submitter',
+        Referee:'Referee',
+        State:'State'
+    },
+    PaperState:{
+        State0:'Unreviewed',
+        State1:'Pending',
+        State2:'reviewing',
+        State3:'Rejected',
+        State4:'Accepted',
+        State5:'Return to modify'
     }
 }

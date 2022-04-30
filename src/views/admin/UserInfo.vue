@@ -6,7 +6,6 @@
         <el-form
             ref="userInfo"
             size="large"
-            class="cell-item"
             style="background: transparent;overflow: hidden;margin-top: 8%"
             :model="newUser"
             label-position="left"
@@ -383,7 +382,7 @@ export default {
 
 .myCard {
   margin-top: 4%;
-  overflow: auto;
+  overflow: hidden;
   width: 40%;
   height: 66%;
   background: rgb(255,255,255,0.5);

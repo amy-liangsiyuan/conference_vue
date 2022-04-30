@@ -112,10 +112,15 @@ export default {
     async handleCurrentPage(currentPage) {
       this.Query.currentPage = currentPage
       const {data: res} = await this.$http.post('/api/server/conference/searchPage', JSON.stringify(this.Query))
-      this.searchList = res.data.list
-      this.Query.total = res.data.total
-      this.Query.currentPage = res.data.pageNum
-      this.Query.pageSize = res.data.pageSize
+      this.loading=true
+      setTimeout(()=>{
+        this.searchList = res.data.list
+        this.Query.total = res.data.total
+        this.Query.currentPage = res.data.pageNum
+        this.Query.pageSize = res.data.pageSize
+        this.loading=false
+      },500)
+
     }
   }
 }

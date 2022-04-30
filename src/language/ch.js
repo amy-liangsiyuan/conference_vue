@@ -25,7 +25,7 @@ module.exports = {
         Name: '会议名称',
         City: '会议城市',
         Address: '会议地址',
-        FirstPicture:'首图',
+        FirstPicture: '首图',
         Department: '所属单位',
         Time: '会议时间',
         CreateTime: '开始时间',
@@ -82,6 +82,9 @@ module.exports = {
         SelfInfo: '我的信息',
         ConferenceInfo: '我的会议',
         LogOut: '退出',
+        ConferenceManagement: '会议管理',
+        ParticipantManagement: '参与者管理',
+        PaperManagement: '论文管理'
 
     },
     UserInfoPage: {
@@ -94,29 +97,52 @@ module.exports = {
         Operation: '操作',
         Delete: '删除',
         Edit: '设置',
-        EditConference:'编辑会议',
+        EditConference: '编辑会议',
         IsSubmit: '您想要提交修改吗？',
-        Modify:'提交',
-        Tips:'· 修改首图无需提交 ·',
-        Details:'更多',
-        AddRoot:'添加根结点',
-        Input:'输入菜单名',
-        Append:'附加',
-        ConferenceMenu:'编辑会议菜单',
-        MenuSetting:'菜单设置',
-        CalendarSetting:'通知设置',
-        AddInfoLine:'添加通知',
-        Title:'标题/日期:',
-        Content:'内容:'
+        Modify: '提交',
+        Tips: '· 修改首图无需提交 ·',
+        Details: '更多',
+        AddRoot: '添加根结点',
+        Input: '输入菜单名',
+        Append: '附加',
+        ConferenceMenu: '编辑会议菜单',
+        MenuSetting: '菜单设置',
+        CalendarSetting: '通知设置',
+        AddInfoLine: '添加通知',
+        Title: '标题/日期:',
+        Content: '内容:'
     },
     MyMessageBox: {
-        Box_1: '您确认删除会议',
+        Box_1: '您确认删除',
         Box_2: '取消删除',
         Box_3: '删除成功',
     },
-    ConferencePage:{
-        Login_Register:'登录/注册',
-        Submit: '提交文档'
+    ConferencePage: {
+        Login_Register: '登录/注册',
+        Submit: '提交文档',
+        ClickToUpload:'点击提交文件',
+        ClickTips:'最多提交5个文件',
+        Reupload:'重传'
+    },
+    ParticipantManagementPage:{
+        Reviewing:'审稿员',
+        Participants:'查看参与者',
+        Remove:'移除',
+    },
+    PaperInfo:{
+        Name:'文件名',
+        CreateTime:'提交日期',
+        Participant:'提交人',
+        Referee:'审稿人',
+        State:'状态'
+    },
+    PaperState:{
+        State0:'未审',
+        State1:'待审',
+        State2:'审阅中',
+        State3:'未通过',
+        State4:'已通过',
+        State5:'退回修改'
     }
 
 

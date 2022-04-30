@@ -54,8 +54,8 @@
       </el-menu-item>
       <el-menu-item @click="Logout" style="color: red;font-weight: 800 ">{{ $t('TopNavBar.LogOut') }}</el-menu-item>
     </el-sub-menu>
-    <div style="padding-left: 0;padding-top:13px;padding-right:13px">
-      <el-button style="background:transparent;color: whitesmoke" @click="changeLang" plain>
+    <div style="height: inherit;display: flex">
+      <el-button size="small" style="background:transparent;color: whitesmoke;margin: auto 10px" @click="changeLang" plain>
         {{ $t('Language') }}
       </el-button>
     </div>
