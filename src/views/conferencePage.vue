@@ -1,5 +1,5 @@
 <template>
-  <div class="mainContainer" v-loading="loading">
+  <div class="mainContainer" v-loading="Loading">
     <div class="imgContainer">
       <img class="topImg"
            :src=this.conferenceInfo.firstPicture alt="">
@@ -24,12 +24,15 @@
             <el-button size="small" v-if="isLogin" @click="LoginOut" type="danger" round>
               {{ $t('TopNavBar.LogOut') }}
             </el-button>
-            <el-button size="small" v-else @click="Login_Register" type="primary" round>{{
+            <el-button size="small" v-else @click="LoginRegisterDialogFlag = true" type="primary" round>{{
                 $t('ConferencePage.Login_Register')
               }}
             </el-button>
             <el-button size="small" v-if="isLogin" type="success" @click="uploadDrawerOpen" round>
               {{ $t('ConferencePage.Submit') }}
+            </el-button>
+            <el-button @click="getRefereePaperList" size="small" type="primary" v-if="isReferee" round>
+              {{ $t('ConferencePage.Review') }}
             </el-button>
           </div>
           <el-timeline style="margin-left: -40px;margin-top: 30px;margin-right: 5px">
@@ -49,7 +52,7 @@
       <!--登录注册弹出抽屉-->
       <el-drawer
           size="30%"
-          v-model="dialogFlag"
+          v-model="LoginRegisterDialogFlag"
           direction="rtl"
       >
         <div style="text-align: center;margin-bottom: 50px">
@@ -62,7 +65,7 @@
               :inactive-text="$t('Login')"
           ></el-switch>
         </div>
-        <div v-if="activeName==='Register'">
+        <div v-if="activeName==='Register'" style="border-radius: 10px">
           <!--注册-->
           <el-form
               ref="participantInfo"
@@ -84,11 +87,14 @@
               <el-input maxlength="15" v-model.trim="participantRegisterInfo.password" type="password"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" size="large" @click="Register">{{ $t('Register') }}</el-button>
+              <el-button type="primary" @click="Register" :loading="loginRegisterDialogLoading" round>{{
+                  $t('Register')
+                }}
+              </el-button>
             </el-form-item>
           </el-form>
         </div>
-        <div v-else>
+        <div v-else style="border-radius:10px">
           <!--登录-->
           <el-form
               ref="participantInfo"
@@ -104,7 +110,10 @@
               <el-input maxlength="15" v-model.trim="participantLoginInfo.password" type="password"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" size="large" @click="Login">{{ $t('Login') }}</el-button>
+              <el-button type="primary" @click="Login" :loading="loginRegisterDialogLoading" round>{{
+                  $t('Login')
+                }}
+              </el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -119,12 +128,13 @@
         <div style="text-align: center;padding: 2%">
           <el-upload
               ref="paperUpload"
+              :before-upload="beforePDFupload"
               :action=paperPath
               :on-success="submitPaperSuccess"
               :show-file-list="false"
               :limit="1"
           >
-            <el-button type="text">{{$t('ConferencePage.ClickToUpload')}}</el-button>
+            <el-button icon="plus" type="primary" round>{{ $t('ConferencePage.ClickToUpload') }}</el-button>
           </el-upload>
           <el-table style="margin-top: 2%" :data="paperList" v-loading="paperListLoading">
             <el-table-column prop="name" :label="$t('PaperInfo.Name')"/>
@@ -132,15 +142,15 @@
             <el-table-column prop="refereeName" :label="$t('PaperInfo.Referee')"/>
             <el-table-column prop="state" :label="$t('PaperInfo.State')">
               <template #default="scope">
-                <span v-if="scope.row.state===0">{{$t('PaperState.State0')}}</span>
-                <span v-else-if="scope.row.state===1" style="color:#d88918;">{{$t('PaperState.State1')}}</span>
-                <span v-else-if="scope.row.state===2" style="color: #0abdfe">{{$t('PaperState.State2')}}</span>
-                <span v-else-if="scope.row.state===3" style="color: red">{{$t('PaperState.State3')}}</span>
-                <span v-else-if="scope.row.state===4" style="color: green">{{$t('PaperState.State4')}}</span>
-                <span v-else-if="scope.row.state===5" style="color: #f98d45">{{$t('PaperState.State5')}}</span>
+                <span v-if="scope.row.state===0" style="color: purple">{{ $t('PaperState.State0') }}</span>
+                <span v-else-if="scope.row.state===1" style="color:#d88918;">{{ $t('PaperState.State1') }}</span>
+                <span v-else-if="scope.row.state===2" style="color: #0abdfe">{{ $t('PaperState.State2') }}</span>
+                <span v-else-if="scope.row.state===3" style="color: red">{{ $t('PaperState.State3') }}</span>
+                <span v-else-if="scope.row.state===4" style="color: green">{{ $t('PaperState.State4') }}</span>
+                <span v-else-if="scope.row.state===5" style="color: #f98d45">{{ $t('PaperState.State5') }}</span>
               </template>
             </el-table-column>
-            <el-table-column fixed="right" :label="$t('MyConferencePage.Operation')" width="150">
+            <el-table-column fixed="right" :label="$t('MyConferencePage.Operation')" width="200">
               <template #default="scope">
                 <div style="display: flex;overflow: auto;text-align: center">
                   <el-upload
@@ -151,10 +161,13 @@
                       :show-file-list="false"
                       :limit="1"
                   >
-                    <el-button @click="reuploadPaper(scope.row.id)" type="text">{{$t('ConferencePage.Reupload')}}</el-button>
+                    <el-button @click="reuploadPaper(scope.row.id)" size="small" type="primary" round>
+                      {{ $t('ConferencePage.Reupload') }}
+                    </el-button>
                   </el-upload>
-                  <el-button v-if="scope.row.state===0" type="text" style="color: red;margin-left: 10px" @click="deletePaper(scope.row)"
-                  >{{ $t('ParticipantManagementPage.Remove') }}
+                  <el-button v-if="scope.row.state===0" size="small" type="danger" style="margin-left: 10px"
+                             @click="deletePaper(scope.row)" round>
+                    {{ $t('ParticipantManagementPage.Remove') }}
                   </el-button>
                 </div>
               </template>
@@ -162,6 +175,86 @@
           </el-table>
         </div>
       </el-drawer>
+
+      <!--审阅弹出抽屉-->
+      <el-drawer
+          size="70%"
+          v-model="reviewDialogFlag"
+          direction="rtl"
+      >
+        <div style="text-align: center;padding: 2%">
+          <el-table style="margin-top: 2%" :data="refereePaperList" v-loading="refereePaperListLoading">
+            <el-table-column prop="name" :label="$t('PaperInfo.Name')"/>
+            <el-table-column prop="createTime" :label="$t('PaperInfo.CreateTime')"/>
+            <el-table-column prop="submitterName" :label="$t('PaperInfo.Participant')"/>
+            <el-table-column prop="refereeName" :label="$t('PaperInfo.Referee')"/>
+            <el-table-column prop="state" :label="$t('PaperInfo.State')">
+              <template #default="scope">
+                <span v-if="scope.row.state===0" style="color: purple">{{ $t('PaperState.State0') }}</span>
+                <span v-else-if="scope.row.state===1" style="color:#0abdfe;">{{ $t('PaperState.State1') }}</span>
+                <span v-else-if="scope.row.state===2" style="color: red">{{ $t('PaperState.State2') }}</span>
+                <span v-else-if="scope.row.state===3" style="color: green">{{ $t('PaperState.State3') }}</span>
+                <span v-else-if="scope.row.state===4" style="color: #f98d45">{{ $t('PaperState.State4') }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column fixed="right" :label="$t('MyConferencePage.Operation')" width="300">
+              <template #default="scope">
+                <div style="display: flex;overflow: auto;text-align: center">
+                  <el-button @click="Review(scope.row)" size="small" :type="scope.row.state===0?'primary':'success'"
+                             round>
+                    {{ $t('ConferencePage.Review') }}
+                  </el-button>
+                  <el-button v-if="scope.row.state!==0" @click="UnReview(scope.row)" size="small" type="warning" round>
+                    {{ $t('ConferencePage.UnReview') }}
+                  </el-button>
+                  <el-popover placement="left" trigger="hover" show-after="500">
+                    <template #reference>
+                      <el-button size="small" type="info" @click="DownLoadPaper(scope.row.url)" round>
+                        {{ $t('ConferencePage.Download') }}
+                      </el-button>
+                    </template>
+                    <iframe style="border:transparent;border-radius: 10px;width: 100%;height: 100%"
+                            :src="scope.row.url"></iframe>
+                  </el-popover>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+
+          <!--Reviewing-->
+          <el-drawer
+
+              size="45%"
+              :append-to-body="true"
+              v-model="paperDrawerFlag"
+              direction="rtl"
+          >
+
+            <div style="display:block;text-align:center;height: 100%;padding: 20px" v-loading="stateGroupLoading">
+              <el-descriptions
+                  size="small"
+                  style="overflow:auto"
+                  border>
+                <el-descriptions-item :label="$t('PaperInfo.Participant')">{{ reviewingPaper.submitterName }}
+                </el-descriptions-item>
+                <el-descriptions-item :label="$t('PaperInfo.CreateTime')">{{ reviewingPaper.createTime }}
+                </el-descriptions-item>
+                <el-descriptions-item :label="$t('PaperInfo.Referee')">{{ reviewingPaper.refereeName }}
+                </el-descriptions-item>
+                <el-descriptions-item :label="$t('PaperInfo.Name')">{{ reviewingPaper.name }}</el-descriptions-item>
+              </el-descriptions>
+              <iframe style="margin:10px auto;border-radius: 10px;width: 80%;border:transparent;height: 80%"
+                      :src="reviewingPaper.url"></iframe>
+              <el-radio-group v-model="reviewingPaper.state" @change="setPaperState">
+                <el-radio-button :label="3">{{ $t('PaperState.State3') }}</el-radio-button>
+                <el-radio-button :label="4">{{ $t('PaperState.State4') }}</el-radio-button>
+                <el-radio-button :label="2">{{ $t('PaperState.State2') }}</el-radio-button>
+              </el-radio-group>
+            </div>
+          </el-drawer>
+        </div>
+      </el-drawer>
+
     </div>
     <Footer style="width: 85%;margin: auto"></Footer>
   </div>
@@ -176,24 +269,33 @@ export default {
   name: "conferencePage",
   data() {
     return {
-      paperListLoading:false,
+      paperListLoading: false,
+      refereePaperListLoading: false,
+      loginRegisterDialogLoading: false,
+      stateGroupLoading: false,
       submitDrawerFlag: false,
-      loading: false,
-      dialogFlag: false,
-
+      paperDrawerFlag: false,
+      Loading: false,
+      LoginRegisterDialogFlag: false,
+      reviewDialogFlag: false,
       activeName: 'Login',
       isLogin: false,
-      paperList:[],
+      isReferee: false,
+      paperEvaluation: 3,
+      reviewingPaper: [],
+      paperList: [],
+      refereePaperList: [],
       content: '',
       conferenceId: '',
       Tree: [],
       InfoLine: [],
       conferenceInfo: {},
       participant: {
-        id:'1',
+        id: '',
         name: '',
         phone: '',
         mail: '',
+        referee: ''
       },
       participantRegisterInfo: {
         name: '',
@@ -205,12 +307,12 @@ export default {
         mail: '',
         password: '',
       },
-      paperPath:'',
-      paperReuploadPath:''
+      paperPath: '',
+      paperReuploadPath: ''
     }
   },
   created() {
-    this.loading = true
+    this.Loading = true
     setTimeout(() => {
       this.conferenceId = localStorage.getItem('conferenceId')
       this.getParticipant()
@@ -223,7 +325,7 @@ export default {
         })
         this.getInfoList(this.conferenceId)
       })
-      this.loading = false
+      this.Loading = false
     }, 500)
 
 
@@ -232,88 +334,119 @@ export default {
     //注册提交方法
     async Register() {
       await this.$http.post('/api/server/participant/register' + this.conferenceId, this.participantRegisterInfo).then((res) => {
-        if (res.data.flag) {
-          this.$message.success(res.data.message)
-          this.dialogFlag = false
-        } else {
-          this.$message.error(res.data.message)
-        }
+        this.loginRegisterDialogLoading = true
+        setTimeout(() => {
+          if (res.data.flag) {
+            this.$message.success(res.data.message)
+            this.LoginRegisterDialogFlag = false
+          } else {
+            this.$message.error(res.data.message)
+          }
+          this.loginRegisterDialogLoading=false
+        },500)
+
       })
     },
     //登录提交方法
     async Login() {
+      this.loginRegisterDialogLoading = true
       await this.$http.post('/api/server/participant/login' + this.conferenceId, this.participantLoginInfo).then((res) => {
-        if (res.data.flag) {
-          this.$message.success(res.data.message)
-          sessionStorage.setItem('participant', JSON.stringify(res.data.data))
-          this.getParticipant()
-          this.isLogin = true
-          this.dialogFlag = false
-        } else {
-          this.$message.error(res.data.message)
-        }
+        setTimeout(() => {
+          if (res.data.flag) {
+            this.$message.success(res.data.message)
+            const participant = {
+              id: '',
+              name: '',
+              phone: '',
+              mail: '',
+              referee: ''
+            }
+            participant.id = res.data.data.id
+            participant.name = res.data.data.name
+            participant.phone = res.data.data.phone
+            participant.mail = res.data.data.mail
+            this.$http.get('api/server/participant/checkReferee' + this.conferenceId + "/" + participant.id).then((res) => {
+              if (res.data.flag) {
+                participant.referee = '1'
+              } else {
+                participant.referee = '0'
+              }
+              sessionStorage.setItem('participant', JSON.stringify(participant))
+              this.getParticipant()
+              this.isLogin = true
+              this.LoginRegisterDialogFlag = false
+            })
+          } else {
+            this.$message.error(res.data.message)
+          }
+          this.loginRegisterDialogLoading = false
+        }, 500)
       })
     },
     //参与者登出方法
     LoginOut() {
-      sessionStorage.removeItem('participant')
-      this.isLogin = false
-    },
-    //登录注册触发方法
-    Login_Register() {
-      this.dialogFlag = true
+      this.Loading = true
+      setTimeout(() => {
+        sessionStorage.removeItem('participant')
+        this.isLogin = false
+        this.isReferee = false
+        this.Loading = false
+      }, 500)
+
     },
     //论文重传路径设定方法
-    reuploadPaper(id){
+    reuploadPaper(id) {
       this.$refs.paperUpload.clearFiles(); //上传成功之后清除历史记录
       this.$refs.paperReUpload.clearFiles();
-      this.paperReuploadPath='http://localhost:9001/server/file/reuploadPaper'+id
+      this.paperReuploadPath = 'http://localhost:9001/server/file/reuploadPaper' + id
     },
     //删除论文方法
-    async deletePaper(row){
-      if (row.state===0){
-        await this.$http.delete('/api/server/file/deletePaper'+row.id).then((res)=>{
-          if (res.data.flag){
-            this.paperListLoading=true
-            setTimeout(()=>{
+    async deletePaper(row) {
+      if (row.state === 0) {
+        await this.$http.delete('/api/server/file/deletePaper' + row.id).then((res) => {
+          if (res.data.flag) {
+            this.paperListLoading = true
+            setTimeout(() => {
               this.$message.success(res.data.message)
               this.getParticipantPaperList()
-              this.paperListLoading=false
-            },500)
-          }else{
+              this.paperListLoading = false
+            }, 500)
+          } else {
             this.$message.success(res.data.message)
           }
         })
-      }else {
+      } else {
         this.$message.warning()
       }
     },
     //提交文件触发方法
-    uploadDrawerOpen(){
-      this.submitDrawerFlag=true
-      this.paperListLoading=true
-      setTimeout(()=>{
+    uploadDrawerOpen() {
+      this.submitDrawerFlag = true
+      this.paperListLoading = true
+      setTimeout(() => {
         this.getParticipantPaperList()
-        this.paperListLoading=false
-      },500)
+        this.paperListLoading = false
+      }, 500)
     },
     //获取参与者
     getParticipant() {
       if (sessionStorage.getItem('participant')) {
         this.isLogin = true
         const participant = JSON.parse(sessionStorage.getItem('participant'))
-        this.participant.id=participant.id
+        this.participant.id = participant.id
         this.participant.name = participant.name
         this.participant.mail = participant.mail
         this.participant.phone = participant.phone
-        this.paperPath='http://localhost:9001/server/file/submitPaper'+this.conferenceId+'/'+this.participant.id
+        this.participant.referee = participant.referee
+        this.isReferee = this.participant.referee === '1'
+        this.paperPath = 'http://localhost:9001/server/file/submitPaper' + this.conferenceId + '/' + this.participant.id
       }
     },
     //获取paper列表
-    async getParticipantPaperList(){
-      await this.$http.get('/api/server/file/getParticipantPaperList'+this.conferenceId+'/'+this.participant.id).then((res)=>{
-        if (res.data.flag){
-          this.paperList=res.data.data
+    async getParticipantPaperList() {
+      await this.$http.get('/api/server/file/getParticipantPaperList' + this.conferenceId + '/' + this.participant.id).then((res) => {
+        if (res.data.flag) {
+          this.paperList = res.data.data
         }
       })
     },
@@ -359,34 +492,109 @@ export default {
         }
       }
     },
-    //文件上传功能函数
-    //上传成功
-    submitPaperSuccess(res){
-      this.paperListLoading=true
-      this.$refs.paperUpload.clearFiles(); //上传成功之后清除历史记录
-      setTimeout(()=>{
-        if (res.flag){
-          this.$message.success(res.message)
-          this.getParticipantPaperList()
-          this.paperListLoading=false
-        }else {
-          this.$message.error(res.message)
-          this.paperListLoading=false
-        }
-      },500)
+    //获取该审稿员的论文列表
+    async getRefereePaperList() {
+      this.reviewDialogFlag = true
+      this.refereePaperListLoading = true
+      await this.$http.get('/api/server/file/getRefereePapers' + this.conferenceId + '/' + this.participant.id).then((res) => {
+        setTimeout(() => {
+          if (res.data.flag) {
+            this.refereePaperList = res.data.data
+          } else {
+            this.$message.error(res.data.message)
+          }
+          this.refereePaperListLoading = false
+        }, 500)
+      })
     },
-    ReuploadPaperSuccess(res){
-      this.paperListLoading=true
-      setTimeout(()=>{
-        if (res.flag){
+    async UnReview(row) {
+      await this.$http.get('/api/server/file/setUnReviewing' + row.id).then((res) => {
+        if (res.data.flag) {
+          this.refereePaperListLoading = true
+          this.getRefereePaperList()
+          setTimeout(() => {
+            this.$message.success('You have waived the right to review this paper.');
+            this.refereePaperListLoading = false
+          }, 500)
+        }
+      })
+    },
+    async Review(row) {
+      if (row.state === 0) {
+        await this.$http.get('/api/server/file/setReviewing' + row.id + '/' + this.participant.id).then((res) => {
+          if (res.data.flag) {
+            this.refereePaperListLoading = true
+            this.getRefereePaperList()
+            setTimeout(() => {
+              this.$message.success('You have obtained the right to review this paper.');
+              this.refereePaperListLoading = false
+            }, 500)
+
+          }
+        })
+      } else {
+        this.refereePaperListLoading = true
+        setTimeout(() => {
+          this.reviewingPaper = row
+          this.refereePaperListLoading = false
+          this.paperDrawerFlag = true
+        }, 500)
+      }
+    },
+    DownLoadPaper(url) {
+      window.open(url, '_blank')
+    },
+    async setPaperState(val) {
+      await this.$http.get('/api/server/file/setPaperState' + this.reviewingPaper.id + "/" + val).then((res) => {
+        if (res.data.flag) {
+          this.stateGroupLoading = true
+          setTimeout(() => {
+            this.$message.success(res.data.message)
+            this.stateGroupLoading = false
+          }, 500)
+        }
+      })
+    },
+    //文件上传功能函数
+    //上传前检测
+    beforePDFupload(file) {
+      const isPDF = file.type === 'application/pdf'
+      const isLt10M = file.size / 1024 / 1024 < 10
+      if (!isPDF) {
+        this.$message.error("The file is not PDF !")
+      }
+      if (!isLt10M) {
+        this.$message.error("The file is out of 10M !")
+      }
+      return isPDF && isLt10M
+    },
+    //上传成功
+    submitPaperSuccess(res) {
+      this.paperListLoading = true
+      this.$refs.paperUpload.clearFiles(); //上传成功之后清除历史记录
+      setTimeout(() => {
+        if (res.flag) {
           this.$message.success(res.message)
           this.getParticipantPaperList()
-          this.paperListLoading=false
-        }else {
+          this.paperListLoading = false
+        } else {
           this.$message.error(res.message)
-          this.paperListLoading=false
+          this.paperListLoading = false
         }
-      },500)
+      }, 500)
+    },
+    ReuploadPaperSuccess(res) {
+      this.paperListLoading = true
+      setTimeout(() => {
+        if (res.flag) {
+          this.$message.success(res.message)
+          this.getParticipantPaperList()
+          this.paperListLoading = false
+        } else {
+          this.$message.error(res.message)
+          this.paperListLoading = false
+        }
+      }, 500)
 
     },
   },
@@ -438,7 +646,7 @@ export default {
   border: 1px solid #dcdcdc;
   border-radius: 10px;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
-  width: 65%;
+  width: 63%;
   min-height: 70vh;
   transition: all .5s;
 }
@@ -450,7 +658,7 @@ export default {
 
 /*右侧信息栏*/
 .infoContainer {
-  width: 20%;
+  width: 22%;
   margin-left: 1%;
   min-height: 90vh;
   padding: 20px;
@@ -522,4 +730,46 @@ export default {
   transition: all .5s;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
 }
+
+
+</style>
+<style>
+.el-popover.el-popper {
+  background-color: rgb(255, 255, 255, 0.9);
+  border-radius: 10px;
+  padding: 15px;
+  width: 35% !important;
+  height: 85% !important;
+}
+
+.el-drawer.rtl.open {
+  border-radius: 10px;
+  background: rgb(255, 255, 255, 0.9);
+  --el-drawer-padding-primary: var(--el-dialog-padding-primary, 20px);
+}
+
+.el-table {
+  margin: auto;
+  position: relative;
+  border-radius: 10px;
+  background-color: rgb(255, 255, 255, 0.2);
+  --el-table-border-color: rgb(255, 255, 255, 0.7);
+  --el-table-border: 1px solid var(--el-table-border-color);
+  --el-table-text-color: black;
+  --el-table-header-text-color: black;
+  --el-table-row-hover-bg-color: rgb(255, 255, 255, 0.4);
+  --el-table-current-row-bg-color: rgb(255, 255, 255, 0.3);
+  --el-table-header-bg-color: rgb(255, 255, 255, 0.5);
+  --el-table-fixed-box-shadow: 0 0 10px rgba(0, 0, 0, 0.12);
+  --el-table-bg-color: rgb(255, 255, 255, 0.3);
+  --el-table-tr-bg-color: rgb(255, 255, 255, 0.3);
+  --el-table-expanded-cell-bg-color: rgb(255, 255, 255, 0.3);
+}
+
+.el-table__body-wrapper tr td.el-table-fixed-column--left, .el-table__body-wrapper tr td.el-table-fixed-column--right, .el-table__body-wrapper tr th.el-table-fixed-column--left, .el-table__body-wrapper tr th.el-table-fixed-column--right, .el-table__footer-wrapper tr td.el-table-fixed-column--left, .el-table__footer-wrapper tr td.el-table-fixed-column--right, .el-table__footer-wrapper tr th.el-table-fixed-column--left, .el-table__footer-wrapper tr th.el-table-fixed-column--right, .el-table__header-wrapper tr td.el-table-fixed-column--left, .el-table__header-wrapper tr td.el-table-fixed-column--right, .el-table__header-wrapper tr th.el-table-fixed-column--left, .el-table__header-wrapper tr th.el-table-fixed-column--right {
+  position: sticky !important;
+  z-index: 2;
+  background: rgb(255, 255, 255, 0.2);
+}
+
 </style>

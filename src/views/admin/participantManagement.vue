@@ -2,7 +2,7 @@
   <div class="myContainer">
     <div style="display:flex;opacity:0.8;position:relative;width: 95%;padding: 2%;margin: auto">
       <!--会议目录-->
-      <el-table :data="conferenceList" class="MyTable" style="width: 35%;margin: auto" max-height="600px"
+      <el-table :data="conferenceList" class="MyTable" style="width: 30%;margin: auto" max-height="600px"
                 v-loading="Loading.conferenceListLoading">
         <el-table-column prop="name" :label="$t('ConferenceInfo.Name')"/>
         <el-table-column prop="state" :label="$t('ConferenceInfo.State')">
@@ -28,7 +28,7 @@
         </el-table-column>
       </el-table>
       <!--参与者目录-->
-      <el-table :data="participantList" style="width: 60%;margin: auto" class="MyTable" max-height="650px"
+      <el-table :data="participantList" style="width: 65%;margin: auto" class="MyTable" max-height="650px"
                 v-loading="Loading.ParticipantsLoading">
         <el-table-column prop="name" :label="$t('UserInfo.UserName')"/>
         <el-table-column prop="mail" :label="$t('UserInfo.Email')"/>

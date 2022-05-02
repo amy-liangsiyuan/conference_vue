@@ -109,15 +109,23 @@ module.exports={
     },
     ConferencePage:{
         Login_Register:'Login/Register',
-        Submit: 'Submit Document',
+        Submit: 'Upload',
         ClickToUpload:'Click To Upload',
         ClickTips:'Submit a maximum of 5 files',
-        Reupload:'Reupload'
+        Reupload:'Reupload',
+        Review:'Review',
+        UnReview: 'Unreviewed',
+        Download:'Download'
     },
     ParticipantManagementPage:{
         Reviewing:'Referee',
         Participants:'Participants',
         Remove:'Remove',
+
+    },
+    PaperManagementPage:{
+        Papers:'Papers',
+        View:'View'
     },
     PaperInfo:{
         Name:'Name',
@@ -128,10 +136,9 @@ module.exports={
     },
     PaperState:{
         State0:'Unreviewed',
-        State1:'Pending',
-        State2:'reviewing',
-        State3:'Rejected',
-        State4:'Accepted',
-        State5:'Return to modify'
+        State1:'Reviewing',
+        State2:'Rejected',
+        State3:'Accepted',
+        State4:'Returned'
     }
 }

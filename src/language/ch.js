@@ -119,31 +119,36 @@ module.exports = {
     },
     ConferencePage: {
         Login_Register: '登录/注册',
-        Submit: '提交文档',
-        ClickToUpload:'点击提交文件',
-        ClickTips:'最多提交5个文件',
-        Reupload:'重传'
+        Submit: '上传',
+        Review:'审阅',
+        UnReview:'取消审阅',
+        ClickToUpload: '点击提交文件',
+        ClickTips: '最多提交5个文件',
+        Reupload: '重传',
+        Download:'下载'
     },
-    ParticipantManagementPage:{
-        Reviewing:'审稿员',
-        Participants:'查看参与者',
-        Remove:'移除',
+    ParticipantManagementPage: {
+        Reviewing: '审稿员',
+        Participants: '查看参与者',
+        Remove: '移除',
     },
-    PaperInfo:{
-        Name:'文件名',
-        CreateTime:'提交日期',
-        Participant:'提交人',
-        Referee:'审稿人',
-        State:'状态'
+    PaperManagementPage: {
+        Papers: '查看论文',
+        Remove: '移除',
+        View:'查看'
     },
-    PaperState:{
-        State0:'未审',
-        State1:'待审',
-        State2:'审阅中',
-        State3:'未通过',
-        State4:'已通过',
-        State5:'退回修改'
+    PaperInfo: {
+        Name: '文件名',
+        CreateTime: '提交日期',
+        Participant: '提交人',
+        Referee: '审稿人',
+        State: '状态'
+    },
+    PaperState: {
+        State0: '未审',
+        State1: '审阅中',
+        State2: '未通过',
+        State3: '已通过',
+        State4: '被退回'
     }
-
-
 }
