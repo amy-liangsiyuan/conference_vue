@@ -2,7 +2,7 @@
   <div class="myContainer">
     <div style="display:flex;opacity:0.8;position:relative;width: 95%;padding: 2%;margin: auto">
       <!--会议目录-->
-      <el-table :data="conferenceList" class="MyTable" style="width: 30%;margin: auto" max-height="600px"
+      <el-table :data="conferenceList" class="MyTable" style="width: 22%;margin: auto" max-height="600px"
                 v-loading="Loading.conferenceListLoading">
         <el-table-column prop="name" :label="$t('ConferenceInfo.Name')"/>
         <el-table-column prop="state" :label="$t('ConferenceInfo.State')">
@@ -28,19 +28,40 @@
         </el-table-column>
       </el-table>
       <!--文件目录-->
-      <el-table :data="paperList" class="MyTable" style="width: 65%;margin: auto" max-height="650px"
+      <el-table :data="paperList" class="MyTable" style="width: 75%;margin: auto" max-height="600px"
                 v-loading="Loading.PaperListLoading">
-        <el-table-column prop="name" :label="$t('PaperInfo.Name')" width="280"/>
+        <el-table-column prop="name" :label="$t('PaperInfo.Name')" width="250"/>
         <el-table-column prop="createTime" :label="$t('PaperInfo.CreateTime')"/>
         <el-table-column prop="submitterName" :label="$t('PaperInfo.Participant')"/>
-        <el-table-column prop="refereeName" :label="$t('PaperInfo.Referee')"/>
+        <el-table-column prop="refereeName1" :label="$t('PaperInfo.Referee')"/>
+        <el-table-column prop="state" :label="$t('PaperInfo.State')">
+          <template #default="scope">
+            <span v-if="scope.row.state1===0" style="color: purple">{{ $t('PaperState.State0') }}</span>
+            <span v-else-if="scope.row.state1===1" style="color:#0abdfe;">{{ $t('PaperState.State1') }}</span>
+            <span v-else-if="scope.row.state1===2" style="color: red">{{ $t('PaperState.State2') }}</span>
+            <span v-else-if="scope.row.state1===3" style="color: green">{{ $t('PaperState.State3') }}</span>
+            <span v-else-if="scope.row.state1===4" style="color: #f98d45">{{ $t('PaperState.State4') }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="refereeName2" :label="$t('PaperInfo.Referee')"/>
         <el-table-column prop="state" :label="$t('PaperInfo.State')">
           <template #default="scope">
             <span v-if="scope.row.state===0" style="color: purple">{{ $t('PaperState.State0') }}</span>
-            <span v-else-if="scope.row.state===1" style="color:#0abdfe;">{{ $t('PaperState.State1') }}</span>
-            <span v-else-if="scope.row.state===2" style="color: red">{{ $t('PaperState.State2') }}</span>
-            <span v-else-if="scope.row.state===3" style="color: green">{{ $t('PaperState.State3') }}</span>
-            <span v-else-if="scope.row.state===4" style="color: #f98d45">{{ $t('PaperState.State4') }}</span>
+            <span v-else-if="scope.row.state2===1" style="color:#0abdfe;">{{ $t('PaperState.State1') }}</span>
+            <span v-else-if="scope.row.state2===2" style="color: red">{{ $t('PaperState.State2') }}</span>
+            <span v-else-if="scope.row.state2===3" style="color: green">{{ $t('PaperState.State3') }}</span>
+            <span v-else-if="scope.row.state2===4" style="color: #f98d45">{{ $t('PaperState.State4') }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="state" :label="$t('PaperInfo.FinalState')">
+          <template #default="scope">
+            <el-select v-model="scope.row.state" @change="changeState(scope.row)" size="small">
+              <el-option :label="$t('PaperState.State0')" :value=0></el-option>
+              <el-option :label="$t('PaperState.State1')" :value=1></el-option>
+              <el-option :label="$t('PaperState.State2')" :value=2></el-option>
+              <el-option :label="$t('PaperState.State3')" :value=3></el-option>
+              <el-option :label="$t('PaperState.State4')" :value=4></el-option>
+            </el-select>
           </template>
         </el-table-column>
         <el-table-column fixed="right" :label="$t('MyConferencePage.Operation')">
@@ -110,6 +131,14 @@ export default {
           this.paperList = res.data.data
         } else {
           this.$message.error(res.data.message)
+        }
+      })
+    },
+    //修改状态
+    async changeState(row){
+      this.$http.get('/api/server/file/setPaperState'+row.id+'/'+row.state).then((res)=>{
+        if (res.data.flag){
+          this.$message.success(res.data.message)
         }
       })
     },

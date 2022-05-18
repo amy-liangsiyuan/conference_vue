@@ -139,22 +139,40 @@
           <el-table style="margin-top: 2%" :data="paperList" v-loading="paperListLoading">
             <el-table-column prop="name" :label="$t('PaperInfo.Name')"/>
             <el-table-column prop="createTime" :label="$t('PaperInfo.CreateTime')"/>
-            <el-table-column prop="refereeName" :label="$t('PaperInfo.Referee')"/>
-            <el-table-column prop="state" :label="$t('PaperInfo.State')">
+            <el-table-column prop="refereeName1" :label="$t('PaperInfo.Referee')"/>
+            <el-table-column prop="state1" :label="$t('PaperInfo.State')">
+              <template #default="scope">
+                <span v-if="scope.row.state1===0" style="color: purple">{{ $t('PaperState.State0') }}</span>
+                <span v-else-if="scope.row.state1===1" style="color:#0abdfe;">{{ $t('PaperState.State1') }}</span>
+                <span v-else-if="scope.row.state1===2" style="color: red">{{ $t('PaperState.State2') }}</span>
+                <span v-else-if="scope.row.state1===3" style="color: green">{{ $t('PaperState.State3') }}</span>
+                <span v-else-if="scope.row.state1===4" style="color: #d88918">{{ $t('PaperState.State4') }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="refereeName2" :label="$t('PaperInfo.Referee')"/>
+            <el-table-column prop="state2" :label="$t('PaperInfo.State')">
+              <template #default="scope">
+                <span v-if="scope.row.state2===0" style="color: purple">{{ $t('PaperState.State0') }}</span>
+                <span v-else-if="scope.row.state2===1" style="color:#0abdfe;">{{ $t('PaperState.State1') }}</span>
+                <span v-else-if="scope.row.state2===2" style="color: red">{{ $t('PaperState.State2') }}</span>
+                <span v-else-if="scope.row.state2===3" style="color: green">{{ $t('PaperState.State3') }}</span>
+                <span v-else-if="scope.row.state2===4" style="color: #d88918">{{ $t('PaperState.State4') }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="state" :label="$t('PaperInfo.FinalState')">
               <template #default="scope">
                 <span v-if="scope.row.state===0" style="color: purple">{{ $t('PaperState.State0') }}</span>
-                <span v-else-if="scope.row.state===1" style="color:#d88918;">{{ $t('PaperState.State1') }}</span>
-                <span v-else-if="scope.row.state===2" style="color: #0abdfe">{{ $t('PaperState.State2') }}</span>
-                <span v-else-if="scope.row.state===3" style="color: red">{{ $t('PaperState.State3') }}</span>
-                <span v-else-if="scope.row.state===4" style="color: green">{{ $t('PaperState.State4') }}</span>
-                <span v-else-if="scope.row.state===5" style="color: #f98d45">{{ $t('PaperState.State5') }}</span>
+                <span v-else-if="scope.row.state===1" style="color:#0abdfe;">{{ $t('PaperState.State1') }}</span>
+                <span v-else-if="scope.row.state===2" style="color: red">{{ $t('PaperState.State2') }}</span>
+                <span v-else-if="scope.row.state===3" style="color: green">{{ $t('PaperState.State3') }}</span>
+                <span v-else-if="scope.row.state===4" style="color: #d88918">{{ $t('PaperState.State4') }}</span>
               </template>
             </el-table-column>
             <el-table-column fixed="right" :label="$t('MyConferencePage.Operation')" width="200">
               <template #default="scope">
                 <div style="display: flex;overflow: auto;text-align: center">
                   <el-upload
-                      v-if="scope.row.state===0||scope.row.state===5"
+                      v-if="scope.row.state===0||scope.row.state===4"
                       ref="paperReUpload"
                       :action=paperReuploadPath
                       :on-success="ReuploadPaperSuccess"
@@ -187,8 +205,27 @@
             <el-table-column prop="name" :label="$t('PaperInfo.Name')"/>
             <el-table-column prop="createTime" :label="$t('PaperInfo.CreateTime')"/>
             <el-table-column prop="submitterName" :label="$t('PaperInfo.Participant')"/>
-            <el-table-column prop="refereeName" :label="$t('PaperInfo.Referee')"/>
-            <el-table-column prop="state" :label="$t('PaperInfo.State')">
+            <el-table-column prop="refereeName1" :label="$t('PaperInfo.Referee')"/>
+            <el-table-column prop="state1" :label="$t('PaperInfo.State')">
+              <template #default="scope">
+                <span v-if="scope.row.state1===0" style="color: purple">{{ $t('PaperState.State0') }}</span>
+                <span v-else-if="scope.row.state1===1" style="color:#0abdfe;">{{ $t('PaperState.State1') }}</span>
+                <span v-else-if="scope.row.state1===2" style="color: red">{{ $t('PaperState.State2') }}</span>
+                <span v-else-if="scope.row.state1===3" style="color: green">{{ $t('PaperState.State3') }}</span>
+                <span v-else-if="scope.row.state1===4" style="color: #f98d45">{{ $t('PaperState.State4') }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="refereeName2" :label="$t('PaperInfo.Referee')"/>
+            <el-table-column prop="state2" :label="$t('PaperInfo.State')">
+              <template #default="scope">
+                <span v-if="scope.row.state2===0" style="color: purple">{{ $t('PaperState.State0') }}</span>
+                <span v-else-if="scope.row.state2===1" style="color:#0abdfe;">{{ $t('PaperState.State1') }}</span>
+                <span v-else-if="scope.row.state2===2" style="color: red">{{ $t('PaperState.State2') }}</span>
+                <span v-else-if="scope.row.state2===3" style="color: green">{{ $t('PaperState.State3') }}</span>
+                <span v-else-if="scope.row.state2===4" style="color: #f98d45">{{ $t('PaperState.State4') }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="state" :label="$t('PaperInfo.FinalState')">
               <template #default="scope">
                 <span v-if="scope.row.state===0" style="color: purple">{{ $t('PaperState.State0') }}</span>
                 <span v-else-if="scope.row.state===1" style="color:#0abdfe;">{{ $t('PaperState.State1') }}</span>
@@ -200,11 +237,14 @@
             <el-table-column fixed="right" :label="$t('MyConferencePage.Operation')" width="300">
               <template #default="scope">
                 <div style="display: flex;overflow: auto;text-align: center">
-                  <el-button @click="Review(scope.row)" size="small" :type="scope.row.state===0?'primary':'success'"
+                  <el-button @click="Review(scope.row)" size="small"
+                             type="primary"
                              round>
                     {{ $t('ConferencePage.Review') }}
                   </el-button>
-                  <el-button v-if="scope.row.state!==0" @click="UnReview(scope.row)" size="small" type="warning" round>
+                  <el-button
+                      v-if="(scope.row.refereeId1===participant.id&&scope.row.state1!==0)||(scope.row.refereeId2===participant.id&&scope.row.state2!==0)"
+                      @click="UnReview(scope.row)" size="small" type="warning" round>
                     {{ $t('ConferencePage.UnReview') }}
                   </el-button>
                   <el-popover placement="left" trigger="hover" show-after="500">
@@ -238,8 +278,6 @@
                 <el-descriptions-item :label="$t('PaperInfo.Participant')">{{ reviewingPaper.submitterName }}
                 </el-descriptions-item>
                 <el-descriptions-item :label="$t('PaperInfo.CreateTime')">{{ reviewingPaper.createTime }}
-                </el-descriptions-item>
-                <el-descriptions-item :label="$t('PaperInfo.Referee')">{{ reviewingPaper.refereeName }}
                 </el-descriptions-item>
                 <el-descriptions-item :label="$t('PaperInfo.Name')">{{ reviewingPaper.name }}</el-descriptions-item>
               </el-descriptions>
@@ -342,8 +380,8 @@ export default {
           } else {
             this.$message.error(res.data.message)
           }
-          this.loginRegisterDialogLoading=false
-        },500)
+          this.loginRegisterDialogLoading = false
+        }, 500)
 
       })
     },
@@ -508,7 +546,7 @@ export default {
       })
     },
     async UnReview(row) {
-      await this.$http.get('/api/server/file/setUnReviewing' + row.id).then((res) => {
+      await this.$http.get('/api/server/file/setUnReviewing' + row.id + '/' + this.participant.id).then((res) => {
         if (res.data.flag) {
           this.refereePaperListLoading = true
           this.getRefereePaperList()
@@ -520,7 +558,10 @@ export default {
       })
     },
     async Review(row) {
-      if (row.state === 0) {
+      let f = 0
+      if (row.refereeId1 === this.participant.id) f = 1
+      if (row.refereeId2 === this.participant.id) f = 2
+      if (f === 0) {
         await this.$http.get('/api/server/file/setReviewing' + row.id + '/' + this.participant.id).then((res) => {
           if (res.data.flag) {
             this.refereePaperListLoading = true
@@ -535,7 +576,14 @@ export default {
       } else {
         this.refereePaperListLoading = true
         setTimeout(() => {
-          this.reviewingPaper = row
+          this.reviewingPaper = {
+            id: row.id,
+            name: row.name,
+            submitterName: row.submitterName,
+            createTime: row.createTime,
+            state: f === 1 ? row.state1 : row.state2,
+            url: row.url
+          }
           this.refereePaperListLoading = false
           this.paperDrawerFlag = true
         }, 500)
@@ -545,11 +593,12 @@ export default {
       window.open(url, '_blank')
     },
     async setPaperState(val) {
-      await this.$http.get('/api/server/file/setPaperState' + this.reviewingPaper.id + "/" + val).then((res) => {
+      await this.$http.get('/api/server/file/refereeChangeState' + this.reviewingPaper.id + "/" + this.participant.id + "/" + val).then((res) => {
         if (res.data.flag) {
           this.stateGroupLoading = true
           setTimeout(() => {
             this.$message.success(res.data.message)
+            this.getRefereePaperList()
             this.stateGroupLoading = false
           }, 500)
         }

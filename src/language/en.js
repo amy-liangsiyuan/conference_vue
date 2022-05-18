@@ -132,7 +132,8 @@ module.exports={
         CreateTime:'Date',
         Participant:'Submitter',
         Referee:'Referee',
-        State:'State'
+        State:'State',
+        FinalState:'Final State'
     },
     PaperState:{
         State0:'Unreviewed',

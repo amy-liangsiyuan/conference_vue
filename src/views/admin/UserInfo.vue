@@ -384,7 +384,7 @@ export default {
   margin-top: 4%;
   overflow: hidden;
   width: 40%;
-  height: 66%;
+  height: auto;
   background: rgb(255,255,255,0.5);
   border: red !important;
 }

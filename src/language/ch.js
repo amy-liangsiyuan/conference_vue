@@ -142,7 +142,8 @@ module.exports = {
         CreateTime: '提交日期',
         Participant: '提交人',
         Referee: '审稿人',
-        State: '状态'
+        State: '状态',
+        FinalState:'最终状态'
     },
     PaperState: {
         State0: '未审',

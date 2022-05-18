@@ -106,8 +106,8 @@ export default {
       this.Query.pageSize = res.data.pageSize
     },
     toConference(conferenceId) {
-      //跳转到对应到会议主页面
-      alert(conferenceId)
+        localStorage.setItem('conferenceId',conferenceId)
+        this.$router.push('/conferencePage')
     },
     async handleCurrentPage(currentPage) {
       this.Query.currentPage = currentPage

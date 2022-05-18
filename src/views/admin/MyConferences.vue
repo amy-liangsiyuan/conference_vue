@@ -2,7 +2,7 @@
   <div class="myContainer">
     <div style="margin:auto;opacity:0.8;position:relative;width: 95%;padding: 2%;">
 
-      <el-table :data="conferenceList" style="margin: auto" class="MyTable" max-height="650px" v-loading="loading">
+      <el-table :data="conferenceList" style="margin: auto" class="MyTable" max-height="600px" v-loading="loading">
         <el-table-column fixed prop="name" :label="$t('ConferenceInfo.Name')"/>
         <el-table-column prop="createTime" :label="$t('ConferenceInfo.CreateTime')"/>
         <el-table-column prop="dropTime" :label="$t('ConferenceInfo.DropTime')"/>
